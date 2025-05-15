@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAccount, useWalletClient, usePublicClient } from "wagmi";
 import { encodeFunctionData, parseUnits } from "viem";
 import { base } from "viem/chains";
@@ -14,14 +14,15 @@ import { useSignEIP7702Authorization } from "@/hooks/useSignEIP7702Authorization
 import { useRelayEIP7702Transaction } from "@/hooks/useRelayEIP7702Transaction";
 import BatchExecutor from "@/contracts/BatchExecutor";
 import USDT from "@/contracts/USDT";
-import USDC from "@/contracts/USDC";
 import {
   Dialog,
   DialogContent,
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { PlusCircle, Trash2 } from "lucide-react";
+import { PlusCircle, Trash2, Loader2 } from "lucide-react";
+import { useEnrichedTokenBalances } from "@/hooks/useEnrichedTokenBalances";
+import type { EnrichedTokenBalance } from "@/hooks/useEnrichedTokenBalances";
 
 // Token type definition
 interface Token {
@@ -35,49 +36,7 @@ interface Token {
   balance: string;
 }
 
-// Available tokens
-const AVAILABLE_TOKENS: Token[] = [
-  {
-    id: "usdt",
-    symbol: "USDT",
-    name: "Tether USD",
-    address: USDT.address as `0x${string}`,
-    icon: "https://cryptologos.cc/logos/tether-usdt-logo.png",
-    decimals: 6,
-    abi: USDT.abi,
-    balance: "1,234.56",
-  },
-  {
-    id: "usdc",
-    symbol: "USDC",
-    name: "USD Coin",
-    address: USDC.address as `0x${string}`,
-    icon: "https://cryptologos.cc/logos/usd-coin-usdc-logo.png",
-    decimals: 6,
-    abi: USDC.abi,
-    balance: "987.21",
-  },
-  {
-    id: "eth",
-    symbol: "ETH",
-    name: "Ethereum",
-    address: "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE" as `0x${string}`,
-    icon: "https://cryptologos.cc/logos/ethereum-eth-logo.png",
-    decimals: 18,
-    abi: USDC.abi, // Just using as placeholder
-    balance: "1.52",
-  },
-  {
-    id: "wbtc",
-    symbol: "WBTC",
-    name: "Wrapped Bitcoin",
-    address: "0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599" as `0x${string}`,
-    icon: "https://cryptologos.cc/logos/wrapped-bitcoin-wbtc-logo.png",
-    decimals: 8,
-    abi: USDC.abi, // Just using as placeholder
-    balance: "0.045",
-  },
-];
+// We'll use real token data from the useEnrichedTokenBalances hook
 
 // Batch transfer item type
 interface BatchTransferItem {
@@ -85,11 +44,59 @@ interface BatchTransferItem {
   amount: string;
 }
 
+// Map from EnrichedTokenBalance to Token interface
+const mapEnrichedBalanceToToken = (balance: EnrichedTokenBalance): Token => {
+  console.log("Mapping balance:", balance);
+  console.log("  - id:", balance.id);
+  console.log("  - token:", balance.token);
+  console.log("  - symbol:", balance.symbol);
+  console.log("  - name:", balance.name);
+  console.log("  - logoURI:", balance.logoURI);
+  console.log("  - decimals:", balance.decimals);
+  console.log("  - formattedAmount:", balance.formattedAmount);
+
+  return {
+    id: balance.id,
+    symbol: balance.symbol,
+    name: balance.name,
+    address: balance.token as `0x${string}`,
+    icon: balance.logoURI || "https://cryptologos.cc/logos/question-mark.png",
+    decimals: balance.decimals || 18,
+    abi: USDT.abi, // Using USDT ABI as default since ERC20 standard is the same
+    balance: balance.formattedAmount,
+  };
+};
+
 export default function TestingPage() {
   const { address: eoa } = useAccount();
   const [recipientAddress, setRecipientAddress] = useState<string>("");
   const [batchItems, setBatchItems] = useState<BatchTransferItem[]>([]);
   const [isTokenDialogOpen, setIsTokenDialogOpen] = useState(false);
+  const [availableTokens, setAvailableTokens] = useState<Token[]>([]);
+
+  const {
+    enrichedBalances,
+    isLoading: isLoadingTokens,
+    error: tokenLoadError,
+  } = useEnrichedTokenBalances();
+
+  // Update available tokens when enriched balances load
+  useEffect(() => {
+    console.log("Effect running, enrichedBalances:", enrichedBalances);
+    if (enrichedBalances) {
+      console.log("Raw enrichedBalances data:", enrichedBalances);
+      try {
+        const tokens = enrichedBalances.map((balance) => {
+          console.log("Processing balance item:", balance);
+          return mapEnrichedBalanceToToken(balance);
+        });
+        console.log("Mapped tokens:", tokens);
+        setAvailableTokens(tokens);
+      } catch (error) {
+        console.error("Error mapping enriched balances:", error);
+      }
+    }
+  }, [enrichedBalances]);
 
   const {
     signAuthorization,
@@ -141,7 +148,7 @@ export default function TestingPage() {
 
   const handleMaxAmount = (index: number) => {
     const token = batchItems[index].token;
-    handleAmountChange(index, token.balance.replace(/,/g, ""));
+    handleAmountChange(index, token.balance);
   };
 
   const handleRelayTransactionClick = () => {
@@ -185,7 +192,7 @@ export default function TestingPage() {
   const publicClient = usePublicClient();
 
   const anyValid = batchItems.some((item) => item.amount);
-  const availableTokensToAdd = AVAILABLE_TOKENS.filter(
+  const availableTokensToAdd = availableTokens.filter(
     (token) => !batchItems.some((item) => item.token.id === token.id)
   );
 
@@ -231,46 +238,77 @@ export default function TestingPage() {
                       variant="default"
                       size="sm"
                       className="gap-2"
-                      disabled={availableTokensToAdd.length === 0}
+                      disabled={
+                        availableTokensToAdd.length === 0 || isLoadingTokens
+                      }
                     >
-                      <PlusCircle className="h-4 w-4" />
-                      Add Token
+                      {isLoadingTokens ? (
+                        <>
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                          Loading Tokens...
+                        </>
+                      ) : (
+                        <>
+                          <PlusCircle className="h-4 w-4" />
+                          Add Token
+                        </>
+                      )}
                     </Button>
                   </DialogTrigger>
                   <DialogContent>
                     <DialogTitle>Select Token</DialogTitle>
-                    <div className="space-y-2 mt-2">
-                      {availableTokensToAdd.map((token) => (
-                        <Button
-                          key={token.id}
-                          variant="neutral"
-                          className="w-full justify-start gap-2"
-                          onClick={() => handleAddToken(token)}
-                        >
-                          <div className="h-5 w-5 rounded-full overflow-hidden">
-                            <img
-                              src={token.icon}
-                              alt={token.symbol}
-                              className="h-full w-full object-contain"
-                            />
-                          </div>
-                          <span>{token.symbol}</span>
-                          <span className="text-xs text-muted-foreground">
-                            {token.balance}
-                          </span>
-                        </Button>
-                      ))}
-                      {availableTokensToAdd.length === 0 && (
-                        <p className="text-center text-muted-foreground py-2">
-                          All tokens have been added
-                        </p>
-                      )}
-                    </div>
+                    {isLoadingTokens ? (
+                      <div className="flex items-center justify-center p-6">
+                        <Loader2 className="h-6 w-6 animate-spin mr-2" />
+                        <span>Loading your tokens...</span>
+                      </div>
+                    ) : tokenLoadError ? (
+                      <div className="text-center text-red-500 p-4">
+                        Error loading tokens: {tokenLoadError.message}
+                      </div>
+                    ) : (
+                      <div className="space-y-2 mt-2">
+                        {availableTokensToAdd.map((token) => (
+                          <Button
+                            key={token.id}
+                            variant="neutral"
+                            className="w-full justify-start gap-2"
+                            onClick={() => handleAddToken(token)}
+                          >
+                            <div className="h-5 w-5 rounded-full overflow-hidden">
+                              <img
+                                src={token.icon}
+                                alt={token.symbol}
+                                className="h-full w-full object-contain"
+                              />
+                            </div>
+                            <span>{token.symbol}</span>
+                            <span className="text-xs text-muted-foreground ml-auto">
+                              {token.balance}
+                            </span>
+                          </Button>
+                        ))}
+                        {availableTokensToAdd.length === 0 && (
+                          <p className="text-center text-muted-foreground py-2">
+                            {availableTokens.length === 0
+                              ? "No tokens found in your wallet"
+                              : "All tokens have been added"}
+                          </p>
+                        )}
+                      </div>
+                    )}
                   </DialogContent>
                 </Dialog>
               </div>
 
-              {batchItems.length === 0 ? (
+              {isLoadingTokens ? (
+                <div className="border border-dashed rounded-md p-8 text-center text-muted-foreground">
+                  <div className="flex flex-col items-center">
+                    <Loader2 className="h-6 w-6 animate-spin mb-2" />
+                    <p>Loading your tokens...</p>
+                  </div>
+                </div>
+              ) : batchItems.length === 0 ? (
                 <div className="border border-dashed rounded-md p-8 text-center text-muted-foreground">
                   <p>Click Add Token to select tokens for batch transfer</p>
                 </div>
