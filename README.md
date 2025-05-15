@@ -27,8 +27,8 @@ The core idea is to simplify complex multi-step interactions (like approving mul
     - [`useRelayEIP7702Transaction`](#userelayeip7702transaction)
   - [G. The Relayer (`app/actions.ts` - Next.js Server Action)](#g-the-relayer-appactionsts---nextjs-server-action)
 - [6. Usage / How to Run the Frontend Demo](#6-usage--how-to-run-the-frontend-demo)
-  - [Demo Page 1: `/testing`](#demo-page-1-testing)
-  - [Demo Page 2: `/testing2` (Batch Executor)](#demo-page-2-testing2-batch-executor)
+  - [Demo Page 1: `/transfer`](#demo-page-1-transfer)
+- [Demo Page 2: `/testing2` (Batch Executor)](#demo-page-2-testing2-batch-executor)
   - [Step-by-Step Guide](#step-by-step-guide)
 - [7. Building a "Dust Sweeper" - The Next Step](#7-building-a-dust-sweeper---the-next-step)
 - [8. Contributing](#8-contributing)
@@ -63,7 +63,7 @@ This project was born out of the desire to explore these capabilities, particula
 - **EIP-7702 Authorization:** Demonstrates how an EOA can authorize the `BatchExecutor` to act on its behalf.
 - **Custom EIP-7702 Signing for Browser Wallets:** Includes a `signAuthorizationTyped` function (`lib/sign-7702-auth.ts`) because `viem`'s built-in `signAuthorization` does not support JSON-RPC accounts (like MetaMask) out-of-the-box.
 - **Transaction Relaying:** Uses Next.js Server Actions (`app/actions.ts`) for a backend relayer that sponsors transactions, taking the EOA's authorization and executing the batch.
-- **Frontend Examples:** Two demo pages (`/testing` and `/testing2`) in a Next.js app to showcase the end-to-end flow with browser wallets.
+- **Frontend Examples:** Two demo pages (`/transfer` and `/testing2`) in a Next.js app to showcase the end-to-end flow with browser wallets.
 - **Standalone Test Script:** A script (`scripts/batch-executor.ts`) to test the core EIP-7702 and batching logic directly.
 - **Base Network Focus:** Examples are configured for the Base blockchain.
 
@@ -416,10 +416,10 @@ After installation and setting up your `template/.env.local` file:
 
 You'll find two main demo pages accessible via navigation (or directly):
 
-### Demo Page 1: `/testing`
+### Demo Page 1: `/transfer`
 
-- **URL:** `http://localhost:3000/testing`
-- **Purpose:** A simpler test of the EIP-7702 authorization and relay flow. It targets a generic contract address (defined in `template/app/testing/page.tsx`) and attempts to call a dummy `sendTokens` function.
+- **URL:** `http://localhost:3000/transfer`
+- **Purpose:** A simpler test of the EIP-7702 authorization and relay flow. It targets a generic contract address (defined in `template/app/transfer/page.tsx`) and attempts to call a dummy `sendTokens` function.
 - This page helps verify the basic signing and relaying mechanism without the complexity of the `BatchExecutor`.
 
 ### Demo Page 2: `/testing2` (Batch Executor)
@@ -434,7 +434,7 @@ You'll find two main demo pages accessible via navigation (or directly):
 2.  **Sign Authorization:**
     - Click the "1. Sign Authorization" button.
     - Your browser wallet will pop up asking you to sign an EIP-712 typed data message. This is the EIP-7702 authorization.
-      - For `/testing`, it authorizes the contract specified in `template/app/testing/page.tsx`.
+      - For `/transfer`, it authorizes the contract specified in `template/app/transfer/page.tsx`.
       - For `/testing2`, it authorizes the `BatchExecutor.address`.
     - Inspect the message if your wallet allows; you'll see the `chainId`, the `authorized` contract address, and your `nonce`.
     - Sign the message.
@@ -446,6 +446,7 @@ You'll find two main demo pages accessible via navigation (or directly):
 4.  **Observe Results:**
     - If successful, a "Transaction Relayed Successfully!" message will appear with a link to view the transaction on Basescan.
     - Click the Basescan link. Check the transaction details and logs.
+      - For `/transfer`, you'll see the transaction details.
       - For `/testing2`, you should see the `TestLog` event from `BatchExecutor.sol`, where `msgSender` is your EOA's address. You'll also see events for the underlying ERC20 transfers if they were successful.
       - The "From" address on Basescan will be the `RELAY_PK`'s address (the one who paid gas), but the internal `msg.sender` for the authorized calls will be your EOA.
 

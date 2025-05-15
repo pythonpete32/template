@@ -5,6 +5,7 @@ import { AlertCircle, Check, Loader2, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import Image from "next/image";
 import {
   Dialog,
   DialogContent,
@@ -36,7 +37,7 @@ const SAMPLE_APPROVALS: TokenApproval[] = [
     contractName: "Uniswap V3",
     contractAddress: "0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45",
     tokenSymbol: "ETH",
-    tokenIcon: "https://cryptologos.cc/logos/ethereum-eth-logo.png",
+    tokenIcon: "/images/token-placeholder.png",
     tokenAddress: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
     allowance: "5",
     isUnlimited: false,
@@ -46,7 +47,7 @@ const SAMPLE_APPROVALS: TokenApproval[] = [
     contractName: "SushiSwap",
     contractAddress: "0xd9e1cE17f2641f24aE83637ab66a2cca9C378B9F",
     tokenSymbol: "USDC",
-    tokenIcon: "https://cryptologos.cc/logos/usd-coin-usdc-logo.png",
+    tokenIcon: "/images/token-placeholder.png",
     tokenAddress: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
     allowance: "1000",
     isUnlimited: false,
@@ -56,7 +57,7 @@ const SAMPLE_APPROVALS: TokenApproval[] = [
     contractName: "Aave V3",
     contractAddress: "0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2",
     tokenSymbol: "USDT",
-    tokenIcon: "https://cryptologos.cc/logos/tether-usdt-logo.png",
+    tokenIcon: "/images/token-placeholder.png",
     tokenAddress: "0xdAC17F958D2ee523a2206206994597C13D831ec7",
     allowance: "0",
     isUnlimited: true,
@@ -66,7 +67,7 @@ const SAMPLE_APPROVALS: TokenApproval[] = [
     contractName: "1inch Router",
     contractAddress: "0x1111111254fb6c44bAC0beD2854e76F90643097d",
     tokenSymbol: "WBTC",
-    tokenIcon: "https://cryptologos.cc/logos/wrapped-bitcoin-wbtc-logo.png",
+    tokenIcon: "/images/token-placeholder.png",
     tokenAddress: "0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599",
     allowance: "0",
     isUnlimited: true,
@@ -76,7 +77,7 @@ const SAMPLE_APPROVALS: TokenApproval[] = [
     contractName: "PancakeSwap",
     contractAddress: "0xEfF92A263d31888d860bD50809A8D171709b7b1c",
     tokenSymbol: "LINK",
-    tokenIcon: "https://cryptologos.cc/logos/chainlink-link-logo.png",
+    tokenIcon: "/images/token-placeholder.png",
     tokenAddress: "0x514910771AF9Ca656af840dff83E8264EcF986CA",
     allowance: "75",
     isUnlimited: false,
@@ -86,7 +87,7 @@ const SAMPLE_APPROVALS: TokenApproval[] = [
     contractName: "Curve Finance",
     contractAddress: "0xD51a44d3FaE010294C616388b506AcdA1bfAAE46",
     tokenSymbol: "DAI",
-    tokenIcon: "https://cryptologos.cc/logos/multi-collateral-dai-dai-logo.png",
+    tokenIcon: "/images/token-placeholder.png",
     tokenAddress: "0x6B175474E89094C44Da98b954EedeAC495271d0F",
     allowance: "2500",
     isUnlimited: false,
@@ -96,7 +97,7 @@ const SAMPLE_APPROVALS: TokenApproval[] = [
     contractName: "Balancer V2",
     contractAddress: "0xBA12222222228d8Ba445958a75a0704d566BF2C8",
     tokenSymbol: "UNI",
-    tokenIcon: "https://cryptologos.cc/logos/uniswap-uni-logo.png",
+    tokenIcon: "/images/token-placeholder.png",
     tokenAddress: "0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984",
     allowance: "150",
     isUnlimited: false,
@@ -106,7 +107,7 @@ const SAMPLE_APPROVALS: TokenApproval[] = [
     contractName: "Compound",
     contractAddress: "0x3d9819210A31b4961b30EF54bE2aeD79B9c9Cd3B",
     tokenSymbol: "AAVE",
-    tokenIcon: "https://cryptologos.cc/logos/aave-aave-logo.png",
+    tokenIcon: "/images/token-placeholder.png",
     tokenAddress: "0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9",
     allowance: "0",
     isUnlimited: true,
@@ -116,8 +117,7 @@ const SAMPLE_APPROVALS: TokenApproval[] = [
     contractName: "ParaSwap",
     contractAddress: "0x1bD435F3C054b6e901B7b108a0ab7617C808677b",
     tokenSymbol: "SNX",
-    tokenIcon:
-      "https://cryptologos.cc/logos/synthetix-network-token-snx-logo.png",
+    tokenIcon: "/images/token-placeholder.png",
     tokenAddress: "0xC011a73ee8576Fb46F5E1c5751cA3B9Fe0af2a6F",
     allowance: "420",
     isUnlimited: false,
@@ -127,7 +127,7 @@ const SAMPLE_APPROVALS: TokenApproval[] = [
     contractName: "dYdX",
     contractAddress: "0x1E0447b19BB6EcFdAe1e4AE1694b0C3659614e4e",
     tokenSymbol: "CRV",
-    tokenIcon: "https://cryptologos.cc/logos/curve-dao-token-crv-logo.png",
+    tokenIcon: "/images/token-placeholder.png",
     tokenAddress: "0xD533a949740bb3306d119CC777fa900bA034cd52",
     allowance: "0",
     isUnlimited: true,
@@ -137,7 +137,7 @@ const SAMPLE_APPROVALS: TokenApproval[] = [
     contractName: "GMX",
     contractAddress: "0xfc5A1A6EB076a2C7aD06eD22C90d7E710E35ad0a",
     tokenSymbol: "COMP",
-    tokenIcon: "https://cryptologos.cc/logos/compound-comp-logo.png",
+    tokenIcon: "/images/token-placeholder.png",
     tokenAddress: "0xc00e94Cb662C3520282E6f5717214004A7f26888",
     allowance: "50",
     isUnlimited: false,
@@ -147,7 +147,7 @@ const SAMPLE_APPROVALS: TokenApproval[] = [
     contractName: "Yearn Finance",
     contractAddress: "0x9D25057e62939D3408406975aD75Ffe834DA4cDd",
     tokenSymbol: "MKR",
-    tokenIcon: "https://cryptologos.cc/logos/maker-mkr-logo.png",
+    tokenIcon: "/images/token-placeholder.png",
     tokenAddress: "0x9f8F72aA9304c8B593d555F12eF6589cC3A579A2",
     allowance: "0",
     isUnlimited: true,
@@ -157,7 +157,7 @@ const SAMPLE_APPROVALS: TokenApproval[] = [
     contractName: "Optimism Bridge",
     contractAddress: "0x99C9fc46f92E8a1c0deC1b1747d010903E884bE1",
     tokenSymbol: "SUSHI",
-    tokenIcon: "https://cryptologos.cc/logos/sushiswap-sushi-logo.png",
+    tokenIcon: "/images/token-placeholder.png",
     tokenAddress: "0x6B3595068778DD592e39A122f4f5a5cF09C90fE2",
     allowance: "200",
     isUnlimited: false,
@@ -167,7 +167,7 @@ const SAMPLE_APPROVALS: TokenApproval[] = [
     contractName: "Polygon Bridge",
     contractAddress: "0xA0c68C638235ee32657e8f720a23ceC1bFc77C77",
     tokenSymbol: "MATIC",
-    tokenIcon: "https://cryptologos.cc/logos/polygon-matic-logo.png",
+    tokenIcon: "/images/token-placeholder.png",
     tokenAddress: "0x7D1AfA7B718fb893dB30A3aBc0Cfc608AaCfeBB0",
     allowance: "750",
     isUnlimited: false,
@@ -177,7 +177,7 @@ const SAMPLE_APPROVALS: TokenApproval[] = [
     contractName: "Convex Finance",
     contractAddress: "0xF403C135812408BFbE8713b5A23a04b3D48AAE31",
     tokenSymbol: "CVX",
-    tokenIcon: "https://cryptologos.cc/logos/convex-finance-cvx-logo.png",
+    tokenIcon: "/images/token-placeholder.png",
     tokenAddress: "0x4e3FBD56CD56c3e72c1403e103b45Db9da5B9D2B",
     allowance: "0",
     isUnlimited: true,
@@ -304,9 +304,11 @@ const ApprovalRow = ({
         <div className="flex items-center space-x-3">
           <div className="w-8 h-8 rounded-full overflow-hidden border bg-white flex items-center justify-center">
             {approval.tokenIcon ? (
-              <img
+              <Image
                 src={approval.tokenIcon}
                 alt={approval.tokenSymbol}
+                width={32}
+                height={32}
                 className="w-full h-full object-contain"
               />
             ) : (
