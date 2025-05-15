@@ -2,7 +2,7 @@
 
 import { useMutation } from "@tanstack/react-query";
 import { useAccount, useWaitForTransactionReceipt, useConfig } from "wagmi";
-import { relayTransactionAction, type RelayRequest } from "@/app/actions";
+import { relayTransactionAction, type RelayRequest } from "@/actions/relay";
 import { toast } from "sonner";
 import type { Abi } from "viem";
 import type { SignAuthorizationReturnType } from "viem/accounts";
