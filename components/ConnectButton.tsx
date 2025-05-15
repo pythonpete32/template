@@ -20,20 +20,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-// Define explicit types for ConnectKit render props
-type ConnectKitRenderProps = {
-  isConnected?: boolean;
-  isConnecting?: boolean;
-  show?: () => void;
-  hide?: () => void;
-  address?: string;
-  ensName?: string;
-  chain?: {
-    id: number;
-    name: string;
-  };
-};
-
 export const CustomConnectButton = () => {
   const [copied, setCopied] = useState(false);
 
@@ -46,15 +32,8 @@ export const CustomConnectButton = () => {
   return (
     <ConnectKitButton.Custom>
       {(props) => {
-        const {
-          isConnected,
-          isConnecting,
-          show,
-          hide,
-          address,
-          ensName,
-          chain,
-        } = props;
+        const { isConnected, isConnecting, show, address, ensName, chain } =
+          props;
         return (
           <>
             {isConnected ? (
@@ -109,7 +88,7 @@ export const CustomConnectButton = () => {
             ) : (
               <Button
                 size="lg"
-                className="gap-2"
+                className="gap-2 font-bold border-2 border-black text-black bg-[#00d6bd] hover:bg-[#00d6bd]/90"
                 onClick={show ? show : undefined}
                 disabled={isConnecting}
               >

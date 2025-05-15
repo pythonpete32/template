@@ -10,13 +10,15 @@ interface ContentAreaProps {
 
 export function ContentArea({ children, className }: ContentAreaProps) {
   return (
-    <div
-      className={cn(
-        "rounded-base bg-background/50 border-2 border-border p-4 flex flex-col flex-1 container mx-auto",
-        className // Allow custom classes
-      )}
-    >
-      {children}
+    <div className="w-full px-[15%] pb-6">
+      <div
+        className={cn(
+          "rounded-base bg-[color:var(--chart-1)] border-4 border-black p-4 flex flex-col flex-1 mx-auto min-h-[85vh]",
+          className // Allow custom classes
+        )}
+      >
+        {children}
+      </div>
     </div>
   );
 }

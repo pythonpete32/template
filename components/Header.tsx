@@ -35,7 +35,7 @@ export function Header() {
               <NavigationMenuItem>
                 <NavigationMenuLink
                   asChild
-                  className="px-5 py-3 text-base text-black hover:bg-white hover:shadow-inner border-2 border-transparent hover:border-black rounded-md font-medium"
+                  className="px-5 py-3 text-base font-bold rounded-md hover:bg-white"
                 >
                   <Link href="/batch-swap">Swap</Link>
                 </NavigationMenuLink>
@@ -43,7 +43,7 @@ export function Header() {
               <NavigationMenuItem>
                 <NavigationMenuLink
                   asChild
-                  className="px-5 py-3 text-base text-black hover:bg-white hover:shadow-inner border-2 border-transparent hover:border-black rounded-md font-medium"
+                  className="px-5 py-3 text-base font-bold rounded-md hover:bg-white"
                 >
                   <Link href="/sweep">Sweep</Link>
                 </NavigationMenuLink>
@@ -51,7 +51,7 @@ export function Header() {
               <NavigationMenuItem>
                 <NavigationMenuLink
                   asChild
-                  className="px-5 py-3 text-base text-black hover:bg-white hover:shadow-inner border-2 border-transparent hover:border-black rounded-md font-medium"
+                  className="px-5 py-3 text-base font-bold rounded-md hover:bg-white"
                 >
                   <Link href="/revoke">Revoke</Link>
                 </NavigationMenuLink>
@@ -59,7 +59,7 @@ export function Header() {
               <NavigationMenuItem>
                 <NavigationMenuLink
                   asChild
-                  className="px-5 py-3 text-base text-black hover:bg-white hover:shadow-inner border-2 border-transparent hover:border-black rounded-md font-medium"
+                  className="px-5 py-3 text-base font-bold rounded-md hover:bg-white"
                 >
                   <Link href="/transfer">Transfer</Link>
                 </NavigationMenuLink>
@@ -67,7 +67,7 @@ export function Header() {
               <NavigationMenuItem>
                 <NavigationMenuLink
                   asChild
-                  className="px-5 py-3 text-base text-black hover:bg-white hover:shadow-inner border-2 border-transparent hover:border-black rounded-md font-medium"
+                  className="px-5 py-3 text-base font-bold rounded-md hover:bg-white"
                 >
                   <Link href="/testing">Testing</Link>
                 </NavigationMenuLink>
