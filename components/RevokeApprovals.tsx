@@ -14,14 +14,7 @@ import {
 } from "@/components/ui/dialog";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+
 import { Checkbox } from "@/components/ui/checkbox";
 
 // Types
@@ -43,7 +36,7 @@ const SAMPLE_APPROVALS: TokenApproval[] = [
     contractName: "Uniswap V3",
     contractAddress: "0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45",
     tokenSymbol: "ETH",
-    tokenIcon: "/ethereum.svg",
+    tokenIcon: "https://cryptologos.cc/logos/ethereum-eth-logo.png",
     tokenAddress: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
     allowance: "5",
     isUnlimited: false,
@@ -53,7 +46,7 @@ const SAMPLE_APPROVALS: TokenApproval[] = [
     contractName: "SushiSwap",
     contractAddress: "0xd9e1cE17f2641f24aE83637ab66a2cca9C378B9F",
     tokenSymbol: "USDC",
-    tokenIcon: "/usdc.svg",
+    tokenIcon: "https://cryptologos.cc/logos/usd-coin-usdc-logo.png",
     tokenAddress: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
     allowance: "1000",
     isUnlimited: false,
@@ -63,7 +56,7 @@ const SAMPLE_APPROVALS: TokenApproval[] = [
     contractName: "Aave V3",
     contractAddress: "0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2",
     tokenSymbol: "USDT",
-    tokenIcon: "/tether.svg",
+    tokenIcon: "https://cryptologos.cc/logos/tether-usdt-logo.png",
     tokenAddress: "0xdAC17F958D2ee523a2206206994597C13D831ec7",
     allowance: "0",
     isUnlimited: true,
@@ -73,7 +66,7 @@ const SAMPLE_APPROVALS: TokenApproval[] = [
     contractName: "1inch Router",
     contractAddress: "0x1111111254fb6c44bAC0beD2854e76F90643097d",
     tokenSymbol: "WBTC",
-    tokenIcon: "/wbtc.svg",
+    tokenIcon: "https://cryptologos.cc/logos/wrapped-bitcoin-wbtc-logo.png",
     tokenAddress: "0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599",
     allowance: "0",
     isUnlimited: true,
@@ -83,20 +76,121 @@ const SAMPLE_APPROVALS: TokenApproval[] = [
     contractName: "PancakeSwap",
     contractAddress: "0xEfF92A263d31888d860bD50809A8D171709b7b1c",
     tokenSymbol: "LINK",
-    tokenIcon: "/link.svg",
+    tokenIcon: "https://cryptologos.cc/logos/chainlink-link-logo.png",
     tokenAddress: "0x514910771AF9Ca656af840dff83E8264EcF986CA",
     allowance: "75",
     isUnlimited: false,
+  },
+  {
+    id: "approval6",
+    contractName: "Curve Finance",
+    contractAddress: "0xD51a44d3FaE010294C616388b506AcdA1bfAAE46",
+    tokenSymbol: "DAI",
+    tokenIcon: "https://cryptologos.cc/logos/multi-collateral-dai-dai-logo.png",
+    tokenAddress: "0x6B175474E89094C44Da98b954EedeAC495271d0F",
+    allowance: "2500",
+    isUnlimited: false,
+  },
+  {
+    id: "approval7",
+    contractName: "Balancer V2",
+    contractAddress: "0xBA12222222228d8Ba445958a75a0704d566BF2C8",
+    tokenSymbol: "UNI",
+    tokenIcon: "https://cryptologos.cc/logos/uniswap-uni-logo.png",
+    tokenAddress: "0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984",
+    allowance: "150",
+    isUnlimited: false,
+  },
+  {
+    id: "approval8",
+    contractName: "Compound",
+    contractAddress: "0x3d9819210A31b4961b30EF54bE2aeD79B9c9Cd3B",
+    tokenSymbol: "AAVE",
+    tokenIcon: "https://cryptologos.cc/logos/aave-aave-logo.png",
+    tokenAddress: "0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9",
+    allowance: "0",
+    isUnlimited: true,
+  },
+  {
+    id: "approval9",
+    contractName: "ParaSwap",
+    contractAddress: "0x1bD435F3C054b6e901B7b108a0ab7617C808677b",
+    tokenSymbol: "SNX",
+    tokenIcon:
+      "https://cryptologos.cc/logos/synthetix-network-token-snx-logo.png",
+    tokenAddress: "0xC011a73ee8576Fb46F5E1c5751cA3B9Fe0af2a6F",
+    allowance: "420",
+    isUnlimited: false,
+  },
+  {
+    id: "approval10",
+    contractName: "dYdX",
+    contractAddress: "0x1E0447b19BB6EcFdAe1e4AE1694b0C3659614e4e",
+    tokenSymbol: "CRV",
+    tokenIcon: "https://cryptologos.cc/logos/curve-dao-token-crv-logo.png",
+    tokenAddress: "0xD533a949740bb3306d119CC777fa900bA034cd52",
+    allowance: "0",
+    isUnlimited: true,
+  },
+  {
+    id: "approval11",
+    contractName: "GMX",
+    contractAddress: "0xfc5A1A6EB076a2C7aD06eD22C90d7E710E35ad0a",
+    tokenSymbol: "COMP",
+    tokenIcon: "https://cryptologos.cc/logos/compound-comp-logo.png",
+    tokenAddress: "0xc00e94Cb662C3520282E6f5717214004A7f26888",
+    allowance: "50",
+    isUnlimited: false,
+  },
+  {
+    id: "approval12",
+    contractName: "Yearn Finance",
+    contractAddress: "0x9D25057e62939D3408406975aD75Ffe834DA4cDd",
+    tokenSymbol: "MKR",
+    tokenIcon: "https://cryptologos.cc/logos/maker-mkr-logo.png",
+    tokenAddress: "0x9f8F72aA9304c8B593d555F12eF6589cC3A579A2",
+    allowance: "0",
+    isUnlimited: true,
+  },
+  {
+    id: "approval13",
+    contractName: "Optimism Bridge",
+    contractAddress: "0x99C9fc46f92E8a1c0deC1b1747d010903E884bE1",
+    tokenSymbol: "SUSHI",
+    tokenIcon: "https://cryptologos.cc/logos/sushiswap-sushi-logo.png",
+    tokenAddress: "0x6B3595068778DD592e39A122f4f5a5cF09C90fE2",
+    allowance: "200",
+    isUnlimited: false,
+  },
+  {
+    id: "approval14",
+    contractName: "Polygon Bridge",
+    contractAddress: "0xA0c68C638235ee32657e8f720a23ceC1bFc77C77",
+    tokenSymbol: "MATIC",
+    tokenIcon: "https://cryptologos.cc/logos/polygon-matic-logo.png",
+    tokenAddress: "0x7D1AfA7B718fb893dB30A3aBc0Cfc608AaCfeBB0",
+    allowance: "750",
+    isUnlimited: false,
+  },
+  {
+    id: "approval15",
+    contractName: "Convex Finance",
+    contractAddress: "0xF403C135812408BFbE8713b5A23a04b3D48AAE31",
+    tokenSymbol: "CVX",
+    tokenIcon: "https://cryptologos.cc/logos/convex-finance-cvx-logo.png",
+    tokenAddress: "0x4e3FBD56CD56c3e72c1403e103b45Db9da5B9D2B",
+    allowance: "0",
+    isUnlimited: true,
   },
 ];
 
 // Custom Table components
 const CustomTable = ({ children }: { children: React.ReactNode }) => (
-  <table className="w-full">{children}</table>
+  <table className="w-full border-collapse">{children}</table>
 );
 
 const CustomTableHeader = ({ children }: { children: React.ReactNode }) => (
-  <thead>{children}</thead>
+  <thead className="bg-muted/30">{children}</thead>
 );
 
 const CustomTableBody = ({ children }: { children: React.ReactNode }) => (
@@ -104,7 +198,7 @@ const CustomTableBody = ({ children }: { children: React.ReactNode }) => (
 );
 
 const CustomTableRow = ({ children }: { children: React.ReactNode }) => (
-  <tr>{children}</tr>
+  <tr className="border-b hover:bg-muted/20 transition-colors">{children}</tr>
 );
 
 const CustomTableHead = ({
@@ -113,7 +207,11 @@ const CustomTableHead = ({
 }: {
   children: React.ReactNode;
   className?: string;
-}) => <th className={className}>{children}</th>;
+}) => (
+  <th className={`py-3 px-4 font-medium text-sm ${className || ""}`}>
+    {children}
+  </th>
+);
 
 const CustomTableCell = ({
   children,
@@ -121,7 +219,7 @@ const CustomTableCell = ({
 }: {
   children: React.ReactNode;
   className?: string;
-}) => <td className={`p-4 ${className || ""}`}>{children}</td>;
+}) => <td className={`py-3.5 px-4 ${className || ""}`}>{children}</td>;
 
 // SelectAllCheckbox component
 const SelectAllCheckbox = ({
@@ -203,11 +301,26 @@ const ApprovalRow = ({
         </div>
       </CustomTableCell>
       <CustomTableCell>
-        <div className="flex items-center space-x-2">
-          <div className="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center">
-            {approval.tokenSymbol.charAt(0)}
+        <div className="flex items-center space-x-3">
+          <div className="w-8 h-8 rounded-full overflow-hidden border bg-white flex items-center justify-center">
+            {approval.tokenIcon ? (
+              <img
+                src={approval.tokenIcon}
+                alt={approval.tokenSymbol}
+                className="w-full h-full object-contain"
+              />
+            ) : (
+              <span className="font-medium text-gray-700">
+                {approval.tokenSymbol.charAt(0)}
+              </span>
+            )}
           </div>
-          <span>{approval.tokenSymbol}</span>
+          <div className="flex flex-col">
+            <span className="font-medium">{approval.tokenSymbol}</span>
+            <span className="text-xs text-muted-foreground">
+              {getTokenName(approval.tokenSymbol)}
+            </span>
+          </div>
         </div>
       </CustomTableCell>
       <CustomTableCell className="text-right">
@@ -234,22 +347,8 @@ const ApprovalTable = ({
   onSelectAll: (selected: Record<string, boolean>) => void;
 }) => {
   return (
-    <div className="border rounded-md">
+    <div>
       <CustomTable>
-        <CustomTableHeader>
-          <CustomTableRow>
-            <CustomTableHead className="w-12">
-              <SelectAllCheckbox
-                approvals={approvals}
-                selectedApprovals={selectedApprovals}
-                onChange={onSelectAll}
-              />
-            </CustomTableHead>
-            <CustomTableHead>Contract</CustomTableHead>
-            <CustomTableHead>Token</CustomTableHead>
-            <CustomTableHead className="text-right">Allowance</CustomTableHead>
-          </CustomTableRow>
-        </CustomTableHeader>
         <CustomTableBody>
           {approvals.map((approval) => (
             <ApprovalRow
@@ -331,36 +430,45 @@ const ConfirmationModal = ({
 // RevokeButtons component
 const RevokeButtons = ({
   selectedCount,
-  totalCount,
   onRevokeSelected,
-  onRevokeAll,
   disabled,
 }: {
   selectedCount: number;
-  totalCount: number;
   onRevokeSelected: () => void;
-  onRevokeAll: () => void;
   disabled: boolean;
 }) => {
   return (
-    <div className="flex flex-col sm:flex-row gap-3 mt-6">
+    <div className="mt-6 max-w-3xl mx-auto">
       <Button
         onClick={onRevokeSelected}
         disabled={selectedCount === 0 || disabled}
-        className="flex-1"
+        className="w-full py-5 text-base font-medium"
       >
         Revoke Selected ({selectedCount})
       </Button>
-      <Button
-        variant="neutral"
-        onClick={onRevokeAll}
-        disabled={totalCount === 0 || disabled}
-        className="flex-1"
-      >
-        Revoke All ({totalCount})
-      </Button>
     </div>
   );
+};
+
+// Helper function to get token name
+const getTokenName = (symbol: string): string => {
+  const tokenNames: Record<string, string> = {
+    ETH: "Ethereum",
+    USDC: "USD Coin",
+    USDT: "Tether USD",
+    WBTC: "Wrapped Bitcoin",
+    LINK: "Chainlink",
+    DAI: "Dai Stablecoin",
+    UNI: "Uniswap",
+    AAVE: "Aave Token",
+    CRV: "Curve DAO",
+    COMP: "Compound",
+    MKR: "Maker",
+    SNX: "Synthetix",
+    SUSHI: "SushiSwap",
+  };
+
+  return tokenNames[symbol] || symbol;
 };
 
 // Main RevokeApprovals Component
@@ -521,12 +629,26 @@ export default function RevokeApprovals() {
         </p>
       </div>
 
-      <div className="mb-4 flex items-center justify-between">
+      <div className="mb-4 flex items-center justify-between max-w-3xl mx-auto">
         <div className="flex items-center gap-2">
           <h3 className="text-lg font-semibold">Active Approvals</h3>
           <Badge variant="neutral">{approvals.length}</Badge>
         </div>
-        {selectedCount > 0 && (
+        <div className="flex items-center gap-2">
+          <Button
+            variant="neutral"
+            size="sm"
+            onClick={() => {
+              // Select all approvals
+              const allSelected: Record<string, boolean> = {};
+              for (const approval of approvals) {
+                allSelected[approval.id] = true;
+              }
+              setSelectedApprovals(allSelected);
+            }}
+          >
+            Select All
+          </Button>
           <Button
             variant="neutral"
             size="sm"
@@ -534,25 +656,25 @@ export default function RevokeApprovals() {
           >
             Clear Selection
           </Button>
-        )}
+        </div>
       </div>
 
-      <Card>
-        <ScrollArea className="h-full max-h-[500px]">
-          <ApprovalTable
-            approvals={approvals}
-            selectedApprovals={selectedApprovals}
-            onSelectApproval={handleSelectApproval}
-            onSelectAll={handleSelectAll}
-          />
+      <Card className="max-w-3xl mx-auto overflow-hidden">
+        <ScrollArea className="h-[360px]" type="always">
+          <div className="pr-4">
+            <ApprovalTable
+              approvals={approvals}
+              selectedApprovals={selectedApprovals}
+              onSelectApproval={handleSelectApproval}
+              onSelectAll={handleSelectAll}
+            />
+          </div>
         </ScrollArea>
       </Card>
 
       <RevokeButtons
         selectedCount={selectedCount}
-        totalCount={approvals.length}
         onRevokeSelected={handleRevokeSelected}
-        onRevokeAll={handleRevokeAll}
         disabled={revokeLoading}
       />
 
