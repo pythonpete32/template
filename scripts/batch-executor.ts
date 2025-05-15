@@ -9,32 +9,34 @@ import { base } from "viem/chains";
 import BatchExecutor from "@/contracts/BatchExecutor";
 import USDT from "@/contracts/USDT";
 import USDC from "@/contracts/USDC";
+import { getServerEnv } from "@/lib/env";
 
-const eoa = privateKeyToAccount(
-  `0x${process.env.SENDER_PRIVATE_KEY}` as `0x${string}`
-);
-const relay = privateKeyToAccount(
-  `0x${process.env.RELAYER_PRIVATE_KEY}` as `0x${string}`
-);
+// 1. Get  variables
+const { ALCHEMY_API_KEY, RELAY_PK, SENDER_PK } = getServerEnv();
+const BASE_RPC = `https://base-mainnet.g.alchemy.com/v2/${ALCHEMY_API_KEY}`;
+const RECIPIENT_ADDRESS: Address = "0x47d80912400ef8f8224531EBEB1ce8f2ACf4b75a";
+const TRANSFER_AMOUNT = 69n;
 
-export const walletClient = createWalletClient({
-  account: relay,
+// 2. Create clients
+export const relayClient = createWalletClient({
+  account: privateKeyToAccount(`0x${RELAY_PK}`),
   chain: base,
-  transport: http(process.env.BASE_RPC_URL),
+  transport: http(BASE_RPC),
+});
+
+export const senderClient = createWalletClient({
+  account: privateKeyToAccount(`0x${SENDER_PK}`),
+  chain: base,
+  transport: http(BASE_RPC),
 });
 
 async function main() {
-  const authorization = await walletClient.signAuthorization({
-    account: eoa,
+  // 3. Sign authorization
+  const authorization = await senderClient.signAuthorization({
     contractAddress: BatchExecutor.address,
   });
 
-  console.log("Authorization:", authorization);
-
-  const RECIPIENT_ADDRESS: Address =
-    "0x47d80912400ef8f8224531EBEB1ce8f2ACf4b75a";
-  const TRANSFER_AMOUNT = 69n; // Wei
-
+  // 4. Encode actions to be executed
   const encodedTransferUSDT = encodeFunctionData({
     abi: USDT.abi,
     functionName: "transfer",
@@ -47,9 +49,9 @@ async function main() {
     args: [RECIPIENT_ADDRESS, TRANSFER_AMOUNT],
   });
 
-  const hash = await walletClient.writeContract({
+  const hash = await relayClient.writeContract({
     abi: BatchExecutor.abi,
-    address: eoa.address,
+    address: senderClient.account.address,
     authorizationList: [authorization],
     functionName: "executeBatch",
     args: [
@@ -58,8 +60,7 @@ async function main() {
     ],
   });
 
-  const explorerUrl = base.blockExplorers?.default.url;
-  console.log(`Transaction sent! View on Basescan: ${explorerUrl}/tx/${hash}`);
+  console.log(`Transaction sent: https://basescan.org/tx/${hash}`);
 }
 
 main().catch((error) => {

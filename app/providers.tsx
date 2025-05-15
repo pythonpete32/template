@@ -1,7 +1,7 @@
 "use client";
 
 import { WagmiProvider, createConfig, http } from "wagmi";
-import { mainnet, base } from "wagmi/chains";
+import { base } from "wagmi/chains";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ConnectKitProvider, getDefaultConfig } from "connectkit";
 import type { FC, ReactNode } from "react";
@@ -10,7 +10,7 @@ import { clientEnv as env } from "../lib/env";
 const config = createConfig(
   getDefaultConfig({
     // Your dApps chains
-    chains: [mainnet, base],
+    chains: [base],
     transports: {
       [base.id]: http(
         `https://base-mainnet.g.alchemy.com/v2/${env.NEXT_PUBLIC_ALCHEMY_ID}`

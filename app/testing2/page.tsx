@@ -1,7 +1,7 @@
 "use client";
 
 import { useAccount, useWalletClient, usePublicClient } from "wagmi";
-import { type Address, type Abi, encodeFunctionData } from "viem";
+import { encodeFunctionData, type Hex } from "viem";
 import { base } from "viem/chains";
 import { Button } from "@/components/ui/button";
 import { ContentArea } from "@/components/ContentArea";
@@ -10,9 +10,6 @@ import { useRelayEIP7702Transaction } from "@/hooks/useRelayEIP7702Transaction";
 import BatchExecutor from "@/contracts/BatchExecutor";
 import USDT from "@/contracts/USDT";
 import USDC from "@/contracts/USDC";
-
-const contractAddress: Address = BatchExecutor.address;
-const sendTokensAbi: Abi = BatchExecutor.abi;
 
 export default function TestingPage() {
   const { address: eoa } = useAccount();
@@ -23,7 +20,7 @@ export default function TestingPage() {
     isSigning,
     signingError,
     isSigningError,
-  } = useSignEIP7702Authorization({ contractAddress });
+  } = useSignEIP7702Authorization({ contractAddress: BatchExecutor.address });
 
   const {
     relayTransaction,
@@ -54,11 +51,11 @@ export default function TestingPage() {
 
     relayTransaction({
       authorization: signedAuthorization,
-      abi: sendTokensAbi,
+      abi: BatchExecutor.abi,
       functionName: "executeBatch",
       args: [
         [USDT.address, USDC.address],
-        [encodedTransferUSDT, encodedTransferUSDC],
+        [encodedTransferUSDT, encodedTransferUSDC] as Hex[],
       ],
     });
   };
