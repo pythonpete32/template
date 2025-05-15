@@ -1,12 +1,12 @@
 "use client";
 
 import { useMutation } from "@tanstack/react-query";
-import { useAccount, useWaitForTransactionReceipt } from "wagmi";
+import { useAccount, useWaitForTransactionReceipt, useConfig } from "wagmi";
 import { relayTransactionAction, type RelayRequest } from "@/app/actions";
 import { toast } from "sonner";
 import type { Abi } from "viem";
 import type { SignAuthorizationReturnType } from "viem/accounts";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 
 interface RelayEIP7702TransactionParams {
   authorization: SignAuthorizationReturnType | undefined | null;
@@ -21,6 +21,7 @@ export function useRelayEIP7702Transaction() {
   const [toastId, setToastId] = useState<string | number | undefined>(
     undefined
   );
+  const config = useConfig();
 
   // Use wagmi hook to watch for transaction confirmation
   const {
@@ -36,6 +37,29 @@ export function useRelayEIP7702Transaction() {
     confirmations: 1,
   });
 
+  // Get block explorer URL for current chain
+  const getBlockExplorerUrl = useCallback(
+    (hash: string): string | undefined => {
+      if (!hash) return undefined;
+
+      // Get the current chain from config - for a transaction we haven't received yet,
+      // use the current chain from wagmi config
+      const currentChainId = txReceipt?.chainId || config.chains?.[0]?.id;
+
+      if (!currentChainId || !config.chains) return undefined;
+
+      const currentChain = config.chains.find(
+        (chain) => chain.id === currentChainId
+      );
+
+      if (!currentChain?.blockExplorers?.default?.url) return undefined;
+
+      // Return the block explorer URL with the transaction hash
+      return `${currentChain.blockExplorers.default.url}/tx/${hash}`;
+    },
+    [txReceipt?.chainId, config.chains]
+  );
+
   // Debug logging for transaction status
   useEffect(() => {
     if (txHash) {
@@ -45,6 +69,7 @@ export function useRelayEIP7702Transaction() {
         `isLoading: ${isTxLoading}, isSuccess: ${isTxSuccess}, isError: ${isTxError}`
       );
       console.log(`Current toastId: ${toastId}`);
+      console.log(`Explorer URL: ${getBlockExplorerUrl(txHash)}`);
       if (txReceipt) {
         console.log("Receipt:", txReceipt);
       }
@@ -62,20 +87,36 @@ export function useRelayEIP7702Transaction() {
     txReceipt,
     txError,
     toastId,
+    getBlockExplorerUrl,
   ]);
 
   // Handle transaction status changes with toast updates
   useEffect(() => {
     if (!txHash) return;
 
+    // For any state, if we have a transaction hash, include the link
+    const explorerUrl = getBlockExplorerUrl(txHash);
+
+    // Create action config for explorer link if URL is available
+    const explorerAction = explorerUrl
+      ? {
+          label: "View on explorer",
+          onClick: () =>
+            window.open(explorerUrl, "_blank", "noopener,noreferrer"),
+        }
+      : undefined;
+
     // Allow toast updates even without a toast ID (will create new toasts)
     if (isTxLoading) {
       if (toastId) {
         toast.loading("Waiting for transaction confirmation...", {
           id: toastId,
+          action: explorerAction,
         });
       } else {
-        const newId = toast.loading("Waiting for transaction confirmation...");
+        const newId = toast.loading("Waiting for transaction confirmation...", {
+          action: explorerAction,
+        });
         setToastId(newId);
       }
     }
@@ -93,21 +134,34 @@ export function useRelayEIP7702Transaction() {
         // Update existing toast or create new success toast
         if (toastId) {
           toast.success(
-            `Transaction confirmed in block ${txReceipt.blockNumber}!`,
-            { id: toastId }
+            `Transaction confirmed in block ${txReceipt.blockNumber.toString()}!`,
+            {
+              id: toastId,
+              duration: 8000,
+              action: explorerAction,
+            }
           );
         } else {
           toast.success(
-            `Transaction confirmed in block ${txReceipt.blockNumber}!`
+            `Transaction confirmed in block ${txReceipt.blockNumber.toString()}!`,
+            {
+              duration: 8000,
+              action: explorerAction,
+            }
           );
         }
         console.log("🎉 Success toast displayed");
       } else {
-        // Update existing toast or create new error toast
+        // Update existing toast or create new error toast for reverted transactions
         if (toastId) {
-          toast.error("Transaction reverted on chain", { id: toastId });
+          toast.error("Transaction reverted on chain", {
+            id: toastId,
+            action: explorerAction,
+          });
         } else {
-          toast.error("Transaction reverted on chain");
+          toast.error("Transaction reverted on chain", {
+            action: explorerAction,
+          });
         }
         console.log("❌ Error toast displayed for reverted transaction");
       }
@@ -115,9 +169,14 @@ export function useRelayEIP7702Transaction() {
 
     if (isTxError && txError) {
       if (toastId) {
-        toast.error(`Transaction failed: ${txError.message}`, { id: toastId });
+        toast.error(`Transaction failed: ${txError.message}`, {
+          id: toastId,
+          action: explorerAction,
+        });
       } else {
-        toast.error(`Transaction failed: ${txError.message}`);
+        toast.error(`Transaction failed: ${txError.message}`, {
+          action: explorerAction,
+        });
       }
       console.log("❌ Error toast displayed for failed transaction");
     }
@@ -129,6 +188,7 @@ export function useRelayEIP7702Transaction() {
     isTxError,
     txReceipt,
     txError,
+    getBlockExplorerUrl,
   ]);
 
   const mutation = useMutation<
@@ -182,15 +242,25 @@ export function useRelayEIP7702Transaction() {
           );
         }
 
-        // Update toast to waiting for confirmation
-        toast.loading("Transaction submitted - waiting for confirmation...", {
-          id,
-        });
-
         // Store the transaction hash for monitoring - ensure it's properly typed as 0x-prefixed string
         const hash = result.txHash as `0x${string}`;
         console.log(`📝 Setting tx hash for monitoring: ${hash}`);
         setTxHash(hash);
+
+        // Create explorer link as soon as we have the tx hash
+        const explorerUrl = getBlockExplorerUrl(hash);
+
+        // Update toast to waiting for confirmation with explorer link button
+        toast.loading("Transaction submitted - waiting for confirmation...", {
+          id,
+          action: explorerUrl
+            ? {
+                label: "View on explorer",
+                onClick: () =>
+                  window.open(explorerUrl, "_blank", "noopener,noreferrer"),
+              }
+            : undefined,
+        });
 
         return { txHash: hash };
       } catch (error) {
