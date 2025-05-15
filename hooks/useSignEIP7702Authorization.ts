@@ -3,6 +3,7 @@
 import { useMutation } from "@tanstack/react-query";
 import { useAccount, useWalletClient, usePublicClient } from "wagmi";
 import { signAuthorizationTyped } from "@/lib/sign-7702-auth";
+import { toast } from "sonner";
 import type {
   Address,
   PublicClient,
@@ -34,18 +35,36 @@ export function useSignEIP7702Authorization({
         throw new Error("EOA or contract address not available.");
       }
 
-      // Assert that publicClient has a defined chain for TypeScript's benefit
-      const checkedPublicClient = publicClient as PublicClient<
-        Transport,
-        Chain
-      >;
+      // Show toast when signing starts
+      const toastId = toast.loading("Please sign the authorization...");
 
-      return signAuthorizationTyped(
-        walletClient as WalletClient,
-        checkedPublicClient,
-        eoa,
-        contractAddress
-      );
+      try {
+        // Assert that publicClient has a defined chain for TypeScript's benefit
+        const checkedPublicClient = publicClient as PublicClient<
+          Transport,
+          Chain
+        >;
+
+        const result = await signAuthorizationTyped(
+          walletClient as WalletClient,
+          checkedPublicClient,
+          eoa,
+          contractAddress
+        );
+
+        // Show success toast when signing completes
+        toast.success("Authorization signed successfully", {
+          id: toastId,
+        });
+
+        return result;
+      } catch (error) {
+        // Show error toast if signing fails
+        toast.error(`Signing failed: ${(error as Error).message}`, {
+          id: toastId,
+        });
+        throw error;
+      }
     },
   });
 

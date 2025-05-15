@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useAccount, useWalletClient, usePublicClient } from "wagmi";
-import { encodeFunctionData, parseUnits } from "viem";
+import { encodeFunctionData, parseUnits, formatUnits } from "viem";
 import { base } from "viem/chains";
 import { Button } from "@/components/ui/button";
 import { ContentArea } from "@/components/ContentArea";
@@ -21,8 +21,15 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { PlusCircle, Trash2, Loader2 } from "lucide-react";
-import { useEnrichedTokenBalances } from "@/hooks/useEnrichedTokenBalances";
-import type { EnrichedTokenBalance } from "@/hooks/useEnrichedTokenBalances";
+import { useEnsoBalances } from "@/hooks/useEnsoBalances";
+import type { BalanceData } from "@ensofinance/sdk";
+
+// Extended BalanceData interface to include the fields returned by Enso but not defined in the SDK
+interface EnsoBalanceExtended extends BalanceData {
+  symbol?: string;
+  name?: string;
+  logoUri?: string;
+}
 
 // Token type definition
 interface Token {
@@ -36,34 +43,34 @@ interface Token {
   balance: string;
 }
 
-// We'll use real token data from the useEnrichedTokenBalances hook
-
 // Batch transfer item type
 interface BatchTransferItem {
   token: Token;
   amount: string;
 }
 
-// Map from EnrichedTokenBalance to Token interface
-const mapEnrichedBalanceToToken = (balance: EnrichedTokenBalance): Token => {
-  console.log("Mapping balance:", balance);
-  console.log("  - id:", balance.id);
-  console.log("  - token:", balance.token);
-  console.log("  - symbol:", balance.symbol);
-  console.log("  - name:", balance.name);
-  console.log("  - logoURI:", balance.logoURI);
-  console.log("  - decimals:", balance.decimals);
-  console.log("  - formattedAmount:", balance.formattedAmount);
+// Map from Enso BalanceData to Token interface
+const mapBalanceToToken = (balance: EnsoBalanceExtended): Token => {
+  console.log("Mapping balance from Enso:", balance);
+
+  let formattedAmount = "0";
+  try {
+    if (balance.amount && balance.decimals !== undefined) {
+      formattedAmount = formatUnits(BigInt(balance.amount), balance.decimals);
+    }
+  } catch (e) {
+    console.error(`Error formatting amount for ${balance.token}:`, e);
+  }
 
   return {
-    id: balance.id,
-    symbol: balance.symbol,
-    name: balance.name,
+    id: balance.token,
+    symbol: balance.symbol || "Unknown",
+    name: balance.name || balance.symbol || "Unknown Token",
     address: balance.token as `0x${string}`,
-    icon: balance.logoURI || "https://cryptologos.cc/logos/question-mark.png",
+    icon: balance.logoUri || "https://cryptologos.cc/logos/question-mark.png",
     decimals: balance.decimals || 18,
     abi: USDT.abi, // Using USDT ABI as default since ERC20 standard is the same
-    balance: balance.formattedAmount,
+    balance: formattedAmount,
   };
 };
 
@@ -74,29 +81,43 @@ export default function TestingPage() {
   const [isTokenDialogOpen, setIsTokenDialogOpen] = useState(false);
   const [availableTokens, setAvailableTokens] = useState<Token[]>([]);
 
+  // Reference to track if we've processed these balances before
+  const processedIds = useRef<string>("");
+
   const {
-    enrichedBalances,
+    balances,
     isLoading: isLoadingTokens,
     error: tokenLoadError,
-  } = useEnrichedTokenBalances();
+  } = useEnsoBalances({
+    excludeTokensWithoutValue: false, // Show all tokens including those with no price data
+  });
 
-  // Update available tokens when enriched balances load
+  // Update available tokens when balances load
   useEffect(() => {
-    console.log("Effect running, enrichedBalances:", enrichedBalances);
-    if (enrichedBalances) {
-      console.log("Raw enrichedBalances data:", enrichedBalances);
-      try {
-        const tokens = enrichedBalances.map((balance) => {
-          console.log("Processing balance item:", balance);
-          return mapEnrichedBalanceToToken(balance);
-        });
-        console.log("Mapped tokens:", tokens);
-        setAvailableTokens(tokens);
-      } catch (error) {
-        console.error("Error mapping enriched balances:", error);
+    if (balances && balances.length > 0) {
+      // Create a unique identifier for this set of balances
+      const balanceIds = balances
+        .map((b) => b.token)
+        .sort()
+        .join(",");
+
+      // Only process if we haven't already processed this exact set
+      if (processedIds.current !== balanceIds) {
+        console.log("Processing new balance set with IDs:", balanceIds);
+        processedIds.current = balanceIds;
+
+        try {
+          // Cast balances to extended type to access additional properties
+          const tokens = balances.map((balance) =>
+            mapBalanceToToken(balance as EnsoBalanceExtended)
+          );
+          setAvailableTokens(tokens);
+        } catch (error) {
+          console.error("Error mapping balances:", error);
+        }
       }
     }
-  }, [enrichedBalances]);
+  }, [balances]);
 
   const {
     signAuthorization,
@@ -275,15 +296,17 @@ export default function TestingPage() {
                             className="w-full justify-start gap-2"
                             onClick={() => handleAddToken(token)}
                           >
-                            <div className="h-5 w-5 rounded-full overflow-hidden">
+                            <div className="h-5 w-5 rounded-full overflow-hidden flex-shrink-0">
                               <img
                                 src={token.icon}
                                 alt={token.symbol}
                                 className="h-full w-full object-contain"
                               />
                             </div>
-                            <span>{token.symbol}</span>
-                            <span className="text-xs text-muted-foreground ml-auto">
+                            <span className="truncate max-w-[120px] text-left">
+                              {token.symbol}
+                            </span>
+                            <span className="text-xs text-muted-foreground ml-auto truncate flex-shrink-0">
                               {token.balance}
                             </span>
                           </Button>
@@ -320,7 +343,7 @@ export default function TestingPage() {
                         key={`${item.token.id}-${index}`}
                         className="flex items-center p-4 border rounded-lg"
                       >
-                        <div className="flex-grow flex items-center gap-3">
+                        <div className="flex-grow flex items-center gap-3 min-w-0">
                           <div className="h-8 w-8 rounded-full overflow-hidden bg-gray-100 flex-shrink-0">
                             <img
                               src={item.token.icon}
@@ -328,17 +351,17 @@ export default function TestingPage() {
                               className="h-full w-full object-contain"
                             />
                           </div>
-                          <div className="min-w-0">
-                            <div className="font-medium truncate">
+                          <div className="min-w-0 flex-shrink overflow-hidden">
+                            <div className="font-medium truncate max-w-[180px]">
                               {item.token.symbol}
                             </div>
-                            <div className="text-xs text-muted-foreground">
+                            <div className="text-xs text-muted-foreground truncate max-w-[180px]">
                               Balance: {item.token.balance}
                             </div>
                           </div>
                         </div>
 
-                        <div className="flex items-center gap-2 ml-4">
+                        <div className="flex items-center gap-2 ml-4 flex-shrink-0">
                           <div className="relative">
                             <Input
                               type="text"
