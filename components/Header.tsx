@@ -20,9 +20,9 @@ export function Header() {
         <NavigationMenu className="hidden md:flex">
           <NavigationMenuList>
             <NavigationMenuItem>
-              <Link href="/swap" legacyBehavior passHref>
+              <Link href="/batch-swap" legacyBehavior passHref>
                 <NavigationMenuLink className="px-4 py-2 text-main-foreground hover:bg-secondary-background rounded-base font-heading">
-                  Swap
+                  Batch Swap
                 </NavigationMenuLink>
               </Link>
             </NavigationMenuItem>

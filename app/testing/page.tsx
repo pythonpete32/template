@@ -1,24 +1,15 @@
 "use client";
 
 import { useAccount, useWalletClient, usePublicClient } from "wagmi";
-import type { Address, Abi } from "viem";
+import { encodeFunctionData, type Hex } from "viem";
 import { base } from "viem/chains";
 import { Button } from "@/components/ui/button";
 import { ContentArea } from "@/components/ContentArea";
 import { useSignEIP7702Authorization } from "@/hooks/useSignEIP7702Authorization";
 import { useRelayEIP7702Transaction } from "@/hooks/useRelayEIP7702Transaction";
-
-const contractAddress: Address = "0x4A70C8E1A4319aB5aE982e96ECcC1abB8CFFa7eF";
-
-const sendTokensAbi: Abi = [
-  {
-    inputs: [],
-    name: "sendTokens",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-];
+import BatchExecutor from "@/contracts/BatchExecutor";
+import USDT from "@/contracts/USDT";
+import USDC from "@/contracts/USDC";
 
 export default function TestingPage() {
   const { address: eoa } = useAccount();
@@ -29,7 +20,7 @@ export default function TestingPage() {
     isSigning,
     signingError,
     isSigningError,
-  } = useSignEIP7702Authorization({ contractAddress });
+  } = useSignEIP7702Authorization({ contractAddress: BatchExecutor.address });
 
   const {
     relayTransaction,
@@ -46,11 +37,26 @@ export default function TestingPage() {
   };
 
   const handleRelayTransactionClick = () => {
+    const encodedTransferUSDT = encodeFunctionData({
+      abi: USDT.abi,
+      functionName: "transfer",
+      args: ["0x47d80912400ef8f8224531EBEB1ce8f2ACf4b75a", 69n],
+    });
+
+    const encodedTransferUSDC = encodeFunctionData({
+      abi: USDC.abi,
+      functionName: "transfer",
+      args: ["0x47d80912400ef8f8224531EBEB1ce8f2ACf4b75a", 69n],
+    });
+
     relayTransaction({
       authorization: signedAuthorization,
-      abi: sendTokensAbi,
-      functionName: "sendTokens",
-      args: [],
+      abi: BatchExecutor.abi,
+      functionName: "executeBatch",
+      args: [
+        [USDT.address, USDC.address],
+        [encodedTransferUSDT, encodedTransferUSDC] as Hex[],
+      ],
     });
   };
 
