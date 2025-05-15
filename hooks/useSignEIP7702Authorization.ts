@@ -70,6 +70,7 @@ export function useSignEIP7702Authorization({
 
   return {
     signAuthorization: mutation.mutate,
+    signAuthorizationAsync: mutation.mutateAsync,
     signedAuthorization: mutation.data,
     isSigning: mutation.isPending,
     signingError: mutation.error,

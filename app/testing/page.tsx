@@ -10,8 +10,7 @@ import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { useSignEIP7702Authorization } from "@/hooks/useSignEIP7702Authorization";
-import { useRelayEIP7702Transaction } from "@/hooks/useRelayEIP7702Transaction";
+import { useEIP7702Transaction } from "@/hooks/useEIP7702Transaction";
 import BatchExecutor from "@/contracts/BatchExecutor";
 import USDT from "@/contracts/USDT";
 import {
@@ -119,27 +118,22 @@ export default function TestingPage() {
     }
   }, [balances]);
 
+  // Use our combined hook for EIP-7702 transactions
   const {
-    signAuthorization,
-    signedAuthorization,
+    execute,
+    isLoading,
     isSigning,
-    signingError,
-    isSigningError,
-  } = useSignEIP7702Authorization({ contractAddress: BatchExecutor.address });
-
-  const {
-    relayTransaction,
-    relayedTxData,
     isRelaying,
-    relayingError,
-    isRelayingError,
-    resetRelaying,
-  } = useRelayEIP7702Transaction();
-
-  const handleSignAuthorizationClick = () => {
-    resetRelaying();
-    signAuthorization();
-  };
+    isTxPending,
+    isSuccess,
+    isError,
+    txHash,
+    error,
+  } = useEIP7702Transaction({
+    contractAddress: BatchExecutor.address,
+    abi: BatchExecutor.abi,
+    functionName: "executeBatch",
+  });
 
   const handleAddToken = (token: Token) => {
     // Check if token already exists in the list
@@ -172,7 +166,7 @@ export default function TestingPage() {
     handleAmountChange(index, token.balance);
   };
 
-  const handleRelayTransactionClick = () => {
+  const handleExecuteTransaction = () => {
     if (!recipientAddress) {
       alert("Please enter a recipient address");
       return;
@@ -200,12 +194,8 @@ export default function TestingPage() {
       encodedCalls.push(encodedTransfer);
     }
 
-    relayTransaction({
-      authorization: signedAuthorization,
-      abi: BatchExecutor.abi,
-      functionName: "executeBatch",
-      args: [targets, encodedCalls],
-    });
+    // Execute the transaction (signs and relays)
+    execute([targets, encodedCalls]);
   };
 
   const explorerUrl = base.blockExplorers?.default.url;
@@ -407,57 +397,39 @@ export default function TestingPage() {
             <h2 className="text-lg font-semibold mb-4">Batch Execution</h2>
             <div className="space-y-3">
               <Button
-                onClick={handleSignAuthorizationClick}
+                onClick={handleExecuteTransaction}
                 disabled={
-                  isSigning ||
-                  isRelaying ||
+                  isLoading ||
                   !eoa ||
                   !walletClient ||
-                  !publicClient
-                }
-                className="w-full"
-              >
-                {isSigning ? "Signing..." : "1. Sign Authorization"}
-              </Button>
-
-              <Button
-                onClick={handleRelayTransactionClick}
-                disabled={
-                  isRelaying ||
-                  isSigning ||
-                  !signedAuthorization ||
+                  !publicClient ||
                   !anyValid ||
                   !recipientAddress ||
                   batchItems.length === 0
                 }
-                variant="neutral"
                 className="w-full"
               >
-                {isRelaying ? "Relaying..." : "2. Execute Batch Transfer"}
+                {isSigning
+                  ? "Signing..."
+                  : isRelaying || isTxPending
+                    ? "Processing..."
+                    : "Execute Batch Transfer"}
               </Button>
             </div>
 
-            {isSigningError && (
+            {isError && (
               <div className="mt-4 p-3 bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400 rounded-md text-sm">
-                Signing Error:{" "}
-                {signingError?.message || "An unknown error occurred"}
+                Error: {error?.message || "An unknown error occurred"}
               </div>
             )}
 
-            {isRelayingError && (
-              <div className="mt-4 p-3 bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400 rounded-md text-sm">
-                Relay Error:{" "}
-                {relayingError?.message || "An unknown error occurred"}
-              </div>
-            )}
-
-            {relayedTxData?.txHash && explorerUrl && (
+            {isSuccess && txHash && explorerUrl && (
               <div className="mt-4 p-4 bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-500 rounded-md">
                 <h3 className="text-base font-medium mb-2">
                   Transaction Successful!
                 </h3>
                 <a
-                  href={`${explorerUrl}/tx/${relayedTxData.txHash}`}
+                  href={`${explorerUrl}/tx/${txHash}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-blue-600 dark:text-blue-400 hover:underline break-all text-sm"

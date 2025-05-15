@@ -273,6 +273,7 @@ export function useRelayEIP7702Transaction() {
 
   return {
     relayTransaction: mutation.mutate,
+    relayTransactionAsync: mutation.mutateAsync,
     relayedTxData: mutation.data,
     isRelaying: mutation.isPending,
     relayingError: mutation.error,
