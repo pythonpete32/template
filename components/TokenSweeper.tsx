@@ -370,7 +370,7 @@ export default function TokenSweeper() {
         await new Promise((resolve) => setTimeout(resolve, 1000));
         setTokens(SAMPLE_TOKENS);
         setLoading(false);
-      } catch (err) {
+      } catch (_error) {
         setError("Failed to load token balances. Please try again.");
         setLoading(false);
       }
@@ -390,6 +390,30 @@ export default function TokenSweeper() {
       delete newSelectedTokens[tokenId];
     }
 
+    updateSweepState(newSelectedTokens);
+  };
+
+  // Select all tokens
+  const handleSelectAll = () => {
+    const newSelectedTokens: Record<string, boolean> = {};
+
+    // Select all tokens except the target token
+    for (const token of tokens) {
+      if (!sweepState.targetToken || token.id !== sweepState.targetToken?.id) {
+        newSelectedTokens[token.id] = true;
+      }
+    }
+
+    updateSweepState(newSelectedTokens);
+  };
+
+  // Clear all selections
+  const handleClearAll = () => {
+    updateSweepState({});
+  };
+
+  // Update sweep state with new token selections
+  const updateSweepState = (newSelectedTokens: Record<string, boolean>) => {
     // Calculate total value of selected tokens
     const totalValue = tokens
       .filter((token) => newSelectedTokens[token.id])
@@ -468,7 +492,7 @@ export default function TokenSweeper() {
 
       alert(`Successfully swept tokens into ${sweepState.targetToken.symbol}!`);
       setSweepLoading(false);
-    } catch (err) {
+    } catch (_error) {
       setError("Failed to execute sweep. Please try again.");
       setSweepLoading(false);
     }
@@ -479,10 +503,19 @@ export default function TokenSweeper() {
     Boolean
   ).length;
 
+  // Available tokens count (excluding target token)
+  const availableTokensCount = sweepState.targetToken
+    ? tokens.filter((token) => token.id !== sweepState.targetToken.id).length
+    : tokens.length;
+
+  // Check if all available tokens are selected
+  const allSelected =
+    selectedCount === availableTokensCount && availableTokensCount > 0;
+
   // Render loading state
   if (loading) {
     return (
-      <div className="w-full max-w-md mx-auto p-4 flex flex-col items-center justify-center h-[400px]">
+      <div className="w-full max-w-4xl mx-auto p-4 flex flex-col items-center justify-center h-[400px]">
         <Loader2 className="h-8 w-8 animate-spin mb-4" />
         <p className="text-lg font-medium">Loading your tokens...</p>
       </div>
@@ -492,7 +525,7 @@ export default function TokenSweeper() {
   // Render error state
   if (error) {
     return (
-      <div className="w-full max-w-md mx-auto p-4">
+      <div className="w-full max-w-4xl mx-auto p-4">
         <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>{error}</AlertDescription>
@@ -510,14 +543,14 @@ export default function TokenSweeper() {
   // Render empty state
   if (tokens.length === 0) {
     return (
-      <div className="w-full max-w-md mx-auto p-4 text-center">
+      <div className="w-full max-w-4xl mx-auto p-4 text-center">
         <div className="py-10 flex flex-col items-center">
           <div className="w-16 h-16 rounded-full bg-secondary-background flex items-center justify-center mb-4">
             <AlertCircle className="h-8 w-8 text-muted-foreground" />
           </div>
           <h3 className="text-lg font-semibold mb-1">No tokens found</h3>
           <p className="text-muted-foreground mb-6">
-            Your wallet doesn't have any tokens to display
+            Your wallet doesn&apos;t have any tokens to display
           </p>
           <Button>Connect another wallet</Button>
         </div>
@@ -527,7 +560,7 @@ export default function TokenSweeper() {
 
   // Main component render
   return (
-    <div className="w-full max-w-md mx-auto">
+    <div className="w-full max-w-5xl mx-auto">
       <div className="mb-6">
         <h2 className="text-2xl font-bold">Token Sweeper</h2>
         <p className="text-muted-foreground">
@@ -535,85 +568,105 @@ export default function TokenSweeper() {
         </p>
       </div>
 
-      {/* Target Token Selector */}
-      <TargetSelector
-        tokens={tokens}
-        selectedToken={sweepState.targetToken}
-        onChange={handleTargetTokenChange}
-      />
-
-      {/* Selection Counter */}
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-2">
-          <h3 className="text-lg font-semibold">Select Tokens</h3>
-          {selectedCount > 0 && (
-            <Badge variant="neutral">{selectedCount} selected</Badge>
-          )}
-        </div>
-        {selectedCount > 0 && (
-          <Button
-            variant="noShadow"
-            size="sm"
-            onClick={() =>
-              setSweepState({
-                ...sweepState,
-                selectedTokens: {},
-                totalInputValue: 0,
-                estimatedOutput: "0",
-              })
-            }
-          >
-            Clear All
-          </Button>
-        )}
-      </div>
-
-      {/* Token List */}
-      <TokenList
-        tokens={tokens}
-        selectedTokens={sweepState.selectedTokens}
-        targetToken={sweepState.targetToken}
-        onChange={handleTokenSelection}
-      />
-
-      {/* Sweep Preview */}
-      {selectedCount > 0 && sweepState.targetToken && (
-        <Card className="mt-6">
-          <CardContent className="pt-6">
-            <h3 className="font-semibold mb-4">Sweep Preview</h3>
-
-            <div className="space-y-3">
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Input Value:</span>
-                <span>${sweepState.totalInputValue.toLocaleString()}</span>
-              </div>
-
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Estimated Output:</span>
-                <span>
-                  {sweepState.estimatedOutput} {sweepState.targetToken.symbol}
-                </span>
-              </div>
-
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">
-                  Expected Price Impact:
-                </span>
-                <span className="text-green-600">Low</span>
-              </div>
+      {/* Two-column layout */}
+      <div className="grid grid-cols-1 md:grid-cols-7 gap-6">
+        {/* Left column - Token list */}
+        <div className="md:col-span-4">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <h3 className="text-lg font-semibold">Select Tokens</h3>
+              {selectedCount > 0 && (
+                <Badge variant="neutral">{selectedCount} selected</Badge>
+              )}
             </div>
-          </CardContent>
-        </Card>
-      )}
+            <div className="flex gap-2">
+              <Button
+                variant="noShadow"
+                size="sm"
+                onClick={handleSelectAll}
+                disabled={allSelected || availableTokensCount === 0}
+              >
+                Select All
+              </Button>
+              <Button
+                variant="noShadow"
+                size="sm"
+                onClick={handleClearAll}
+                disabled={selectedCount === 0}
+              >
+                Clear All
+              </Button>
+            </div>
+          </div>
 
-      {/* Sweep Button */}
-      <SweepButton
-        selectedCount={selectedCount}
-        hasTarget={!!sweepState.targetToken}
-        totalValue={sweepState.totalInputValue}
-        onClick={executeSweep}
-        loading={sweepLoading}
-      />
+          {/* Token List */}
+          <ScrollArea className="h-[500px] pr-2 border rounded-md p-2">
+            <TokenList
+              tokens={tokens}
+              selectedTokens={sweepState.selectedTokens}
+              targetToken={sweepState.targetToken}
+              onChange={handleTokenSelection}
+            />
+          </ScrollArea>
+        </div>
+
+        {/* Right column - Controls */}
+        <div className="md:col-span-3 flex flex-col">
+          {/* Target Token Selector */}
+          <Card className="mb-4 p-4">
+            <h3 className="text-lg font-semibold mb-4">Sweep Into</h3>
+            <TargetSelector
+              tokens={tokens}
+              selectedToken={sweepState.targetToken}
+              onChange={handleTargetTokenChange}
+            />
+          </Card>
+
+          {/* Sweep Preview */}
+          {selectedCount > 0 && sweepState.targetToken && (
+            <Card className="mb-4">
+              <CardContent className="pt-6">
+                <h3 className="font-semibold mb-4">Sweep Preview</h3>
+
+                <div className="space-y-3">
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Input Value:</span>
+                    <span>${sweepState.totalInputValue.toLocaleString()}</span>
+                  </div>
+
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">
+                      Estimated Output:
+                    </span>
+                    <span>
+                      {sweepState.estimatedOutput}{" "}
+                      {sweepState.targetToken.symbol}
+                    </span>
+                  </div>
+
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">
+                      Expected Price Impact:
+                    </span>
+                    <span className="text-green-600">Low</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Sweep Button */}
+          <div className="mt-auto">
+            <SweepButton
+              selectedCount={selectedCount}
+              hasTarget={!!sweepState.targetToken}
+              totalValue={sweepState.totalInputValue}
+              onClick={executeSweep}
+              loading={sweepLoading}
+            />
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
