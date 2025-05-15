@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useEIP7702Transaction } from "@/hooks/useEIP7702Transaction";
-import BatchExecutor from "@/contracts/BatchExecutor";
+
 // import USDT from "@/contracts/USDT";
 import { erc20Abi } from "viem";
 import Image from "next/image";
@@ -127,11 +127,7 @@ export default function TransferPage() {
     isError,
     txHash,
     error,
-  } = useEIP7702Transaction({
-    contractAddress: BatchExecutor.address,
-    abi: BatchExecutor.abi,
-    functionName: "executeBatch",
-  });
+  } = useEIP7702Transaction({});
 
   const handleAddToken = (token: Token) => {
     // Check if token already exists in the list

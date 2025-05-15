@@ -1,55 +1,17 @@
 "use client";
 
-import { useState } from "react";
 import { useAccount } from "wagmi";
 import { ContentArea } from "@/components/ContentArea";
 import { Card } from "@/components/ui/card";
 import { Beaker, Wallet } from "lucide-react";
 import Image from "next/image";
 import { TokenApproval } from "@/components/TokenApproval";
-import {
-  WalletTokenSelection,
-  type Token,
-} from "@/components/WalletTokenSelection";
-import { parseUnits } from "viem";
-
-// Utility function to scale amount by token decimals
-const scaleAmount = (amount: string, decimals: number): string => {
-  try {
-    // Use viem's parseUnits to handle the scaling properly
-    return parseUnits(amount || "0", decimals).toString();
-  } catch (e) {
-    console.error("Error scaling amount:", e);
-    return "0";
-  }
-};
 
 export default function TestingPage() {
   const { address } = useAccount();
-  const [selectedToken, setSelectedToken] = useState<Token | null>(null);
-  const [amount, setAmount] = useState<string>("");
 
   const handleApprovalData = (data: unknown) => {
     console.log("Approval data received:", data);
-  };
-
-  const handleTokenSelect = (token: Token) => {
-    setSelectedToken(token);
-    console.log("Token selected:", token);
-  };
-
-  const handleTokenRemove = () => {
-    setSelectedToken(null);
-  };
-
-  const handleAmountChange = (newAmount: string) => {
-    setAmount(newAmount);
-  };
-
-  // Example of how to scale the amount before sending to server
-  const getScaledAmount = (): string => {
-    if (!selectedToken || !amount) return "0";
-    return scaleAmount(amount, selectedToken.decimals || 18);
   };
 
   return (
@@ -92,41 +54,7 @@ export default function TestingPage() {
           </div>
         </Card>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Component 1: Token Selection with Amount */}
-          <div>
-            <h2 className="text-xl font-bold mb-4">Token Selection</h2>
-            <WalletTokenSelection
-              title="Select a Token"
-              selectedToken={selectedToken}
-              onTokenSelect={handleTokenSelect}
-              onTokenRemove={handleTokenRemove}
-              amount={amount}
-              onAmountChange={handleAmountChange}
-              buttonText="Add Token"
-              showAmountInput={!!selectedToken}
-              showRemoveButton={!!selectedToken}
-            />
-
-            {selectedToken && (
-              <div className="mt-4 p-4 bg-secondary/20 rounded-md">
-                <h3 className="font-medium mb-2">Selected Token:</h3>
-                <pre className="text-xs font-mono bg-background p-2 rounded overflow-auto">
-                  {JSON.stringify(
-                    {
-                      token: selectedToken,
-                      amount: amount || "Not set",
-                      scaledAmount: getScaledAmount(),
-                    },
-                    null,
-                    2
-                  )}
-                </pre>
-              </div>
-            )}
-          </div>
-
-          {/* Component 2: Token Approval Flow */}
+        <div className="grid grid-cols-1 gap-6">
           <div>
             <h2 className="text-xl font-bold mb-4">Token Approval Flow</h2>
             <TokenApproval

@@ -3,21 +3,16 @@
 import { useCallback, useState } from "react";
 import { useSignEIP7702Authorization } from "./useSignEIP7702Authorization";
 import { useRelayEIP7702Transaction } from "./useRelayEIP7702Transaction";
-import type { Abi, Address } from "viem";
 
-interface UseEIP7702TransactionParams<TFunctionName extends string> {
-  contractAddress: Address | undefined;
-  abi: Abi;
-  functionName: TFunctionName;
+interface UseEIP7702TransactionParams {
   enabled?: boolean;
 }
 
-export function useEIP7702Transaction<TFunctionName extends string>({
-  contractAddress,
-  abi,
-  functionName,
+import BatchExecutor from "@/contracts/BatchExecutor";
+
+export function useEIP7702Transaction({
   enabled = true,
-}: UseEIP7702TransactionParams<TFunctionName>) {
+}: UseEIP7702TransactionParams) {
   const [isProcessing, setIsProcessing] = useState(false);
 
   // Use the existing hooks
@@ -29,7 +24,7 @@ export function useEIP7702Transaction<TFunctionName extends string>({
     isSigningError,
     resetSigning,
   } = useSignEIP7702Authorization({
-    contractAddress,
+    contractAddress: BatchExecutor.address,
   });
 
   const {
@@ -54,7 +49,7 @@ export function useEIP7702Transaction<TFunctionName extends string>({
   // Combined execute function that handles both signing and relaying
   const execute = useCallback(
     async (args: unknown[]) => {
-      if (!enabled || !contractAddress) return;
+      if (!enabled) return;
 
       setIsProcessing(true);
 
@@ -66,8 +61,8 @@ export function useEIP7702Transaction<TFunctionName extends string>({
         if (authorization) {
           await relayTransactionAsync({
             authorization,
-            abi,
-            functionName,
+            abi: BatchExecutor.abi,
+            functionName: "executeBatch",
             args,
           });
         }
@@ -78,14 +73,7 @@ export function useEIP7702Transaction<TFunctionName extends string>({
         setIsProcessing(false);
       }
     },
-    [
-      enabled,
-      contractAddress,
-      signAuthorizationAsync,
-      relayTransactionAsync,
-      abi,
-      functionName,
-    ]
+    [enabled, signAuthorizationAsync, relayTransactionAsync]
   );
 
   return {
