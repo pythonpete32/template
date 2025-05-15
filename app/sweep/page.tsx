@@ -1,9 +1,10 @@
 import { ContentArea } from "@/components/ContentArea";
+import TokenSweeper from "@/components/TokenSweeper";
 
-export default function BatchSwapPage() {
+export default function SweepPage() {
   return (
     <ContentArea>
-      <div>Sweep</div>
+      <TokenSweeper />
     </ContentArea>
   );
 }

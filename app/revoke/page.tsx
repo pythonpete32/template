@@ -1,9 +1,10 @@
 import { ContentArea } from "@/components/ContentArea";
+import RevokeApprovals from "@/components/RevokeApprovals";
 
-export default function BatchSwapPage() {
+export default function RevokePage() {
   return (
     <ContentArea>
-      <div>Revoke</div>
+      <RevokeApprovals />
     </ContentArea>
   );
 }
