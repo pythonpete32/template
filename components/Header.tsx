@@ -12,67 +12,71 @@ import {
 
 export function Header() {
   return (
-    <header className="w-full py-4 px-6 md:px-8 border-b border-border bg-background sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto flex items-center justify-between">
-        <Link href="/" className="flex items-center">
-          <div className="relative h-16 w-16 md:h-24 md:w-24">
-            <Image
-              src="/logo.png"
-              alt="Based Wallet"
-              fill
-              priority
-              sizes="(max-width: 768px) 64px, 96px"
-              className="object-contain"
-            />
-          </div>
-        </Link>
+    <header className="w-full py-3 px-6 md:px-8 border-b-4 border-black bg-white sticky top-0 z-50">
+      <div className="max-w-7xl mx-auto flex items-center">
+        <div className="flex-1 flex justify-start">
+          <Link href="/" className="flex items-center">
+            <div className="relative h-[100px] w-[400px]">
+              <Image
+                src="/logo2.png"
+                alt="Based Wallet"
+                fill
+                priority
+                sizes="400px"
+                className="object-contain object-left"
+              />
+            </div>
+          </Link>
+        </div>
 
-        <NavigationMenu className="hidden md:flex">
-          <NavigationMenuList>
-            <NavigationMenuItem>
-              <NavigationMenuLink
-                asChild
-                className="px-4 py-2 text-main-foreground hover:bg-secondary-background rounded-base font-heading"
-              >
-                <Link href="/batch-swap">Batch Swap</Link>
-              </NavigationMenuLink>
-            </NavigationMenuItem>
-            <NavigationMenuItem>
-              <NavigationMenuLink
-                asChild
-                className="px-4 py-2 text-main-foreground hover:bg-secondary-background rounded-base font-heading"
-              >
-                <Link href="/sweep">Sweep</Link>
-              </NavigationMenuLink>
-            </NavigationMenuItem>
-            <NavigationMenuItem>
-              <NavigationMenuLink
-                asChild
-                className="px-4 py-2 text-main-foreground hover:bg-secondary-background rounded-base font-heading"
-              >
-                <Link href="/revoke">Revoke</Link>
-              </NavigationMenuLink>
-            </NavigationMenuItem>
-            <NavigationMenuItem>
-              <NavigationMenuLink
-                asChild
-                className="px-4 py-2 text-main-foreground hover:bg-secondary-background rounded-base font-heading"
-              >
-                <Link href="/transfer">Transfer</Link>
-              </NavigationMenuLink>
-            </NavigationMenuItem>
-            <NavigationMenuItem>
-              <NavigationMenuLink
-                asChild
-                className="px-4 py-2 text-main-foreground hover:bg-secondary-background rounded-base font-heading"
-              >
-                <Link href="/testing">Testing</Link>
-              </NavigationMenuLink>
-            </NavigationMenuItem>
-          </NavigationMenuList>
-        </NavigationMenu>
+        <div className="flex-1 flex justify-center">
+          <NavigationMenu className="hidden md:flex">
+            <NavigationMenuList className="flex gap-1">
+              <NavigationMenuItem>
+                <NavigationMenuLink
+                  asChild
+                  className="px-5 py-3 text-base text-black hover:bg-white hover:shadow-inner border-2 border-transparent hover:border-black rounded-md font-medium"
+                >
+                  <Link href="/batch-swap">Swap</Link>
+                </NavigationMenuLink>
+              </NavigationMenuItem>
+              <NavigationMenuItem>
+                <NavigationMenuLink
+                  asChild
+                  className="px-5 py-3 text-base text-black hover:bg-white hover:shadow-inner border-2 border-transparent hover:border-black rounded-md font-medium"
+                >
+                  <Link href="/sweep">Sweep</Link>
+                </NavigationMenuLink>
+              </NavigationMenuItem>
+              <NavigationMenuItem>
+                <NavigationMenuLink
+                  asChild
+                  className="px-5 py-3 text-base text-black hover:bg-white hover:shadow-inner border-2 border-transparent hover:border-black rounded-md font-medium"
+                >
+                  <Link href="/revoke">Revoke</Link>
+                </NavigationMenuLink>
+              </NavigationMenuItem>
+              <NavigationMenuItem>
+                <NavigationMenuLink
+                  asChild
+                  className="px-5 py-3 text-base text-black hover:bg-white hover:shadow-inner border-2 border-transparent hover:border-black rounded-md font-medium"
+                >
+                  <Link href="/transfer">Transfer</Link>
+                </NavigationMenuLink>
+              </NavigationMenuItem>
+              <NavigationMenuItem>
+                <NavigationMenuLink
+                  asChild
+                  className="px-5 py-3 text-base text-black hover:bg-white hover:shadow-inner border-2 border-transparent hover:border-black rounded-md font-medium"
+                >
+                  <Link href="/testing">Testing</Link>
+                </NavigationMenuLink>
+              </NavigationMenuItem>
+            </NavigationMenuList>
+          </NavigationMenu>
+        </div>
 
-        <div className="flex items-center space-x-2 md:space-x-4">
+        <div className="flex-1 flex justify-end">
           <CustomConnectButton />
         </div>
       </div>

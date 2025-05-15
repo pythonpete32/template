@@ -1,16 +1,23 @@
-"use client"
+"use client";
 
 import { ConnectKitButton } from "connectkit";
 import { Button } from "@/components/ui/button";
-import { Wallet, LogOut, ChevronDown, ExternalLink, Copy, Check } from "lucide-react";
+import {
+  Wallet,
+  LogOut,
+  ChevronDown,
+  ExternalLink,
+  Copy,
+  Check,
+} from "lucide-react";
 import { useState } from "react";
-import { 
-  DropdownMenu, 
-  DropdownMenuContent, 
-  DropdownMenuItem, 
-  DropdownMenuLabel, 
-  DropdownMenuSeparator, 
-  DropdownMenuTrigger 
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
 // Define explicit types for ConnectKit render props
@@ -29,7 +36,7 @@ type ConnectKitRenderProps = {
 
 export const CustomConnectButton = () => {
   const [copied, setCopied] = useState(false);
-  
+
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
     setCopied(true);
@@ -39,23 +46,35 @@ export const CustomConnectButton = () => {
   return (
     <ConnectKitButton.Custom>
       {(props) => {
-        const { isConnected, isConnecting, show, hide, address, ensName, chain } = props;
+        const {
+          isConnected,
+          isConnecting,
+          show,
+          hide,
+          address,
+          ensName,
+          chain,
+        } = props;
         return (
           <>
             {isConnected ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button size="lg" className="gap-2 font-mono">
-                    {ensName || `${address?.slice(0, 6)}...${address?.slice(-4)}`}
+                    {ensName ||
+                      `${address?.slice(0, 6)}...${address?.slice(-4)}`}
                     <ChevronDown className="h-4 w-4" />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-56 border-2 border-border shadow-[4px_4px_0px_0px_rgba(0,0,0)]">
+                <DropdownMenuContent
+                  align="end"
+                  className="w-56 border-2 border-border shadow-[4px_4px_0px_0px_rgba(0,0,0)]"
+                >
                   <DropdownMenuLabel className="font-normal text-muted-foreground">
                     Connected to {chain?.name || "Ethereum"}
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem 
+                  <DropdownMenuItem
                     className="flex cursor-pointer items-center gap-2"
                     onClick={() => copyToClipboard(address || "")}
                   >
@@ -68,7 +87,7 @@ export const CustomConnectButton = () => {
                   </DropdownMenuItem>
                   <DropdownMenuItem className="flex cursor-pointer items-center gap-2">
                     <ExternalLink className="h-4 w-4" />
-                    <a 
+                    <a
                       href={`https://etherscan.io/address/${address}`}
                       target="_blank"
                       rel="noopener noreferrer"
@@ -78,7 +97,7 @@ export const CustomConnectButton = () => {
                     </a>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem 
+                  <DropdownMenuItem
                     className="flex cursor-pointer items-center gap-2 text-destructive"
                     onClick={show ? show : undefined}
                   >
@@ -88,9 +107,9 @@ export const CustomConnectButton = () => {
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
-              <Button 
-                size="lg" 
-                className="gap-2" 
+              <Button
+                size="lg"
+                className="gap-2"
                 onClick={show ? show : undefined}
                 disabled={isConnecting}
               >
