@@ -4,6 +4,7 @@ import {
   type BalanceData,
   EnsoClient,
   type ApproveData,
+  type ApproveParams,
 } from "@ensofinance/sdk";
 import { getServerEnv } from "../lib/env";
 import type { Address } from "viem";
@@ -48,13 +49,17 @@ export async function getApprovalData(
   amount: string
 ): Promise<ApproveData | { error: string }> {
   try {
-    const approvalData: ApproveData = await enso.getApprovalData({
+    const params: ApproveParams = {
       fromAddress: fromAddress as `0x${string}`,
       tokenAddress: tokenAddress as `0x${string}`,
       chainId: 8453, // Base mainnet
       amount,
       routingStrategy: "router",
-    });
+    };
+
+    console.log("Approval params:", params);
+
+    const approvalData: ApproveData = await enso.getApprovalData(params);
 
     console.log(
       "Approval data from Enso SDK:",

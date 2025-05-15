@@ -2,31 +2,54 @@
 
 import { useState } from "react";
 import { useAccount } from "wagmi";
-import { Button } from "@/components/ui/button";
 import { ContentArea } from "@/components/ContentArea";
 import { Card } from "@/components/ui/card";
-import { Beaker, Wallet, Check } from "lucide-react";
+import { Beaker, Wallet } from "lucide-react";
 import Image from "next/image";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { useEnsoApproval } from "@/hooks/useEnsoApproval";
-import type { Address } from "viem";
+import { TokenApproval } from "@/components/TokenApproval";
+import {
+  WalletTokenSelection,
+  type Token,
+} from "@/components/WalletTokenSelection";
+import { parseUnits } from "viem";
+
+// Utility function to scale amount by token decimals
+const scaleAmount = (amount: string, decimals: number): string => {
+  try {
+    // Use viem's parseUnits to handle the scaling properly
+    return parseUnits(amount || "0", decimals).toString();
+  } catch (e) {
+    console.error("Error scaling amount:", e);
+    return "0";
+  }
+};
 
 export default function TestingPage() {
   const { address } = useAccount();
-  const [tokenAddress, setTokenAddress] = useState<string>("");
-  const [amount, setAmount] = useState<string>("1000000000000000000"); // Default 1 token with 18 decimals
-  const [isTestingApproval, setIsTestingApproval] = useState(false);
+  const [selectedToken, setSelectedToken] = useState<Token | null>(null);
+  const [amount, setAmount] = useState<string>("");
 
-  const { approvalData, isLoading, error } = useEnsoApproval({
-    fromAddress: address as Address,
-    tokenAddress: tokenAddress as Address,
-    amount,
-    enabled: isTestingApproval && !!address && !!tokenAddress,
-  });
+  const handleApprovalData = (data: unknown) => {
+    console.log("Approval data received:", data);
+  };
 
-  const handleTestApproval = () => {
-    setIsTestingApproval(true);
+  const handleTokenSelect = (token: Token) => {
+    setSelectedToken(token);
+    console.log("Token selected:", token);
+  };
+
+  const handleTokenRemove = () => {
+    setSelectedToken(null);
+  };
+
+  const handleAmountChange = (newAmount: string) => {
+    setAmount(newAmount);
+  };
+
+  // Example of how to scale the amount before sending to server
+  const getScaledAmount = (): string => {
+    if (!selectedToken || !amount) return "0";
+    return scaleAmount(amount, selectedToken.decimals || 18);
   };
 
   return (
@@ -51,7 +74,7 @@ export default function TestingPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 gap-6">
         <Card className="p-6 border-2 border-primary/10 shadow-md">
           <div className="flex items-center mb-4">
             <Beaker className="h-6 w-6 mr-2 text-primary" />
@@ -69,68 +92,49 @@ export default function TestingPage() {
           </div>
         </Card>
 
-        <Card className="p-6 border-2 border-primary/10 shadow-md">
-          <div className="flex items-center mb-4">
-            <Beaker className="h-6 w-6 mr-2 text-primary" />
-            <h2 className="text-xl font-semibold">Test Enso Approval</h2>
-          </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Component 1: Token Selection with Amount */}
+          <div>
+            <h2 className="text-xl font-bold mb-4">Token Selection</h2>
+            <WalletTokenSelection
+              title="Select a Token"
+              selectedToken={selectedToken}
+              onTokenSelect={handleTokenSelect}
+              onTokenRemove={handleTokenRemove}
+              amount={amount}
+              onAmountChange={handleAmountChange}
+              buttonText="Add Token"
+              showAmountInput={!!selectedToken}
+              showRemoveButton={!!selectedToken}
+            />
 
-          <div className="space-y-4 mb-4">
-            <div className="space-y-2">
-              <Label htmlFor="tokenAddress">Token Address</Label>
-              <Input
-                id="tokenAddress"
-                value={tokenAddress}
-                onChange={(e) => setTokenAddress(e.target.value)}
-                placeholder="0x..."
-                disabled={isLoading}
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="amount">Amount (in wei)</Label>
-              <Input
-                id="amount"
-                value={amount}
-                onChange={(e) => setAmount(e.target.value)}
-                placeholder="1000000000000000000"
-                disabled={isLoading}
-              />
-            </div>
-          </div>
-
-          <Button
-            size="lg"
-            className="w-full"
-            onClick={handleTestApproval}
-            disabled={!address || !tokenAddress || isLoading}
-          >
-            {isLoading ? (
-              <span className="animate-spin mr-2">⟳</span>
-            ) : (
-              <Beaker className="h-4 w-4 mr-2" />
+            {selectedToken && (
+              <div className="mt-4 p-4 bg-secondary/20 rounded-md">
+                <h3 className="font-medium mb-2">Selected Token:</h3>
+                <pre className="text-xs font-mono bg-background p-2 rounded overflow-auto">
+                  {JSON.stringify(
+                    {
+                      token: selectedToken,
+                      amount: amount || "Not set",
+                      scaledAmount: getScaledAmount(),
+                    },
+                    null,
+                    2
+                  )}
+                </pre>
+              </div>
             )}
-            Test Enso Approval
-          </Button>
+          </div>
 
-          {error && (
-            <div className="mt-4 p-4 bg-destructive/10 text-destructive rounded-md">
-              <p className="text-sm">{error.message}</p>
-            </div>
-          )}
-
-          {approvalData && (
-            <div className="mt-4">
-              <div className="flex items-center mb-2">
-                <Check className="h-5 w-5 mr-2 text-green-500" />
-                <p className="font-medium">Approval Data Ready</p>
-              </div>
-              <div className="text-xs font-mono bg-background p-2 rounded overflow-auto max-h-60">
-                <pre>{JSON.stringify(approvalData, null, 2)}</pre>
-              </div>
-            </div>
-          )}
-        </Card>
+          {/* Component 2: Token Approval Flow */}
+          <div>
+            <h2 className="text-xl font-bold mb-4">Token Approval Flow</h2>
+            <TokenApproval
+              title="Test Token Approval"
+              onApprovalData={handleApprovalData}
+            />
+          </div>
+        </div>
       </div>
     </ContentArea>
   );
