@@ -56,7 +56,7 @@ export function useEIP7702Transaction({
       try {
         // Step 1: Sign the transaction using the async version
         const authorization = await signAuthorizationAsync();
-
+        resetSigning();
         // Step 2: Relay the transaction with the authorization
         if (authorization) {
           await relayTransactionAsync({
