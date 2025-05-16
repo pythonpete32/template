@@ -37,7 +37,7 @@ export default function RootLayout({
             {children}
           </div>
         </Web3Provider>
-        <Toaster />
+        <Toaster position="bottom-center" />
       </body>
     </html>
   );

@@ -9,7 +9,7 @@ import type { Address } from "viem";
 import { useEnsoRouter } from "@/hooks/useEnsoRouter";
 import { useEnsoApproval } from "@/hooks/useEnsoApproval";
 import { useEIP7702Transaction } from "@/hooks/useEIP7702Transaction";
-import { WalletTokenSelection, type Token } from "./WalletTokenSelection";
+import { AdvancedTokenSelector, type Token } from "./AdvancedTokenSelector";
 import { base } from "viem/chains";
 import type { ApproveData, RouteData } from "@ensofinance/sdk";
 
@@ -143,10 +143,10 @@ export function CombinedFlow({
     <div className="space-y-6">
       <h3 className="text-lg font-medium">Combined Approval & Swap</h3>
 
-      {/* Input Token Selection */}
+      {/* Input Token Selection (from wallet only) */}
       <div>
         <p className="text-sm mb-1">From</p>
-        <WalletTokenSelection
+        <AdvancedTokenSelector
           selectedToken={inputToken}
           onTokenSelect={handleInputTokenSelect}
           onTokenRemove={() => setInputToken(null)}
@@ -155,6 +155,7 @@ export function CombinedFlow({
           showAmountInput={!!inputToken}
           showRemoveButton={!!inputToken}
           buttonText="Select Token"
+          walletOnly={true} // Only show wallet tokens for the input
         />
       </div>
 
@@ -165,16 +166,17 @@ export function CombinedFlow({
         </div>
       </div>
 
-      {/* Output Token Selection */}
+      {/* Output Token Selection (any token from Base chain) */}
       <div>
         <p className="text-sm mb-1">To</p>
-        <WalletTokenSelection
+        <AdvancedTokenSelector
           selectedToken={outputToken}
           onTokenSelect={handleOutputTokenSelect}
           onTokenRemove={() => setOutputToken(null)}
           showAmountInput={false}
           showRemoveButton={!!outputToken}
-          buttonText="Select Token"
+          buttonText="Select Any Token"
+          defaultTab="all"
         />
       </div>
 
@@ -248,30 +250,22 @@ export function CombinedFlow({
 
       {/* Transaction Result */}
       {isError && (
-        <div className="mt-4 p-3 bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400 rounded-md">
+        <div className="mt-2 p-3 bg-destructive/10 text-destructive rounded-md">
           <p className="text-sm font-medium">Transaction Error:</p>
-          <p className="text-sm">
-            {error?.message || "An unknown error occurred"}
-          </p>
+          <p className="text-sm">{error?.message || "Unknown error"}</p>
         </div>
       )}
 
       {isSuccess && txHash && explorerUrl && (
-        <div className="mt-4 p-4 bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-500 rounded-md">
-          <h3 className="text-base font-medium mb-2">
-            Combined Transaction Successful!
-          </h3>
-          <p className="text-sm mb-2">
-            Successfully approved tokens and executed swap in a single
-            transaction.
-          </p>
+        <div className="mt-2 p-3 bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-500 rounded-md">
+          <p className="text-sm font-medium">Transaction Successful!</p>
           <a
             href={`${explorerUrl}/tx/${txHash}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-blue-600 dark:text-blue-400 hover:underline text-sm block"
+            className="text-blue-600 dark:text-blue-400 hover:underline break-all text-sm"
           >
-            View on Basescan
+            View on explorer
           </a>
         </div>
       )}
