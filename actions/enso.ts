@@ -32,10 +32,10 @@ export async function getEOABalances(
     });
 
     // Log the raw balances to the server console for inspection
-    console.log(
-      "Raw balances from Enso SDK:",
-      JSON.stringify(balances, null, 2)
-    );
+    // console.log(
+    //   "Raw balances from Enso SDK:",
+    //   JSON.stringify(balances, null, 2)
+    // );
 
     return balances;
   } catch (error: unknown) {
@@ -131,14 +131,14 @@ export async function getTokenData(
       ...params,
     };
 
-    console.log("Token params:", tokenParams);
+    // console.log("Token params:", tokenParams);
 
     const tokenData = await enso.getTokenData(tokenParams);
 
-    console.log(
-      "Token data from Enso SDK:",
-      JSON.stringify(tokenData, null, 2)
-    );
+    // console.log(
+    //   "Token data from Enso SDK:",
+    //   JSON.stringify(tokenData, null, 2)
+    // );
 
     return tokenData;
   } catch (error: unknown) {

@@ -3,6 +3,8 @@
 import { WagmiProvider, createConfig, http } from "wagmi";
 import { base } from "wagmi/chains";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+
 import { ConnectKitProvider, getDefaultConfig } from "connectkit";
 import type { FC, ReactNode } from "react";
 import { clientEnv as env } from "../lib/env";
@@ -38,6 +40,7 @@ export const Web3Provider: FC<{ children: ReactNode }> = ({ children }) => {
     <WagmiProvider config={config}>
       <QueryClientProvider client={queryClient}>
         <ConnectKitProvider>{children}</ConnectKitProvider>
+        <ReactQueryDevtools initialIsOpen={false} />
       </QueryClientProvider>
     </WagmiProvider>
   );
