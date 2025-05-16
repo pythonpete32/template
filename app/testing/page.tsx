@@ -6,13 +6,49 @@ import { Card } from "@/components/ui/card";
 import { Beaker, Wallet } from "lucide-react";
 import Image from "next/image";
 import { TokenApproval } from "@/components/TokenApproval";
+import { useEIP7702Transaction } from "@/hooks/useEIP7702Transaction";
+import { Button } from "@/components/ui/button";
+import { useState } from "react";
+import type { ApproveData } from "@ensofinance/sdk";
+import { base } from "viem/chains";
 
 export default function TestingPage() {
   const { address } = useAccount();
+  const [approvalData, setApprovalData] = useState<ApproveData | null>(null);
+
+  // Use our combined hook for EIP-7702 transactions
+  const {
+    execute,
+    isLoading,
+    isSigning,
+    isRelaying,
+    isTxPending,
+    isSuccess,
+    isError,
+    txHash,
+    error,
+  } = useEIP7702Transaction({});
 
   const handleApprovalData = (data: unknown) => {
     console.log("Approval data received:", data);
+    setApprovalData(data as ApproveData);
   };
+
+  const handleExecuteTransaction = () => {
+    if (!approvalData) return;
+
+    console.log("Executing transaction with approval data:", approvalData);
+
+    // Use the transaction data from the approval
+    // Using the BatchExecutor contract's executeBatch function
+    execute([
+      [approvalData.tx.to], // targets array - token contract
+      [approvalData.tx.data], // data array - approval data
+    ]);
+  };
+
+  // Base explorer URL for transaction links
+  const explorerUrl = base.blockExplorers?.default.url;
 
   return (
     <ContentArea>
@@ -61,6 +97,44 @@ export default function TestingPage() {
               title="Test Token Approval"
               onApprovalData={handleApprovalData}
             />
+
+            {approvalData && (
+              <div className="mt-6">
+                <Button
+                  onClick={handleExecuteTransaction}
+                  disabled={isLoading || !address}
+                  className="w-full"
+                >
+                  {isSigning
+                    ? "Signing..."
+                    : isRelaying || isTxPending
+                      ? "Processing..."
+                      : "Execute Approval Transaction with EIP-7702"}
+                </Button>
+
+                {isError && (
+                  <div className="mt-4 p-3 bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400 rounded-md text-sm">
+                    Error: {error?.message || "An unknown error occurred"}
+                  </div>
+                )}
+
+                {isSuccess && txHash && explorerUrl && (
+                  <div className="mt-4 p-4 bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-500 rounded-md">
+                    <h3 className="text-base font-medium mb-2">
+                      Transaction Successful!
+                    </h3>
+                    <a
+                      href={`${explorerUrl}/tx/${txHash}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-600 dark:text-blue-400 hover:underline break-all text-sm"
+                    >
+                      View on Basescan
+                    </a>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </div>
       </div>
